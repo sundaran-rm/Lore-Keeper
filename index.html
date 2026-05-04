@@ -6932,13 +6932,19 @@ async function importConnProfile(file) {
       syncQueue.length = 0;
       const keysToRemove = Object.keys(localStorage).filter(k => k.startsWith('lk_'));
       keysToRemove.forEach(k => localStorage.removeItem(k));
-      state.entries = []; state.campaigns = []; state.category = 'all';
+      state.entries = []; state.category = 'all';
       state.query = ''; state.editingId = null; state.linkedIds = [];
       // Preserve PIN so the PIN gate still works after import
       if (state.pin) localStorage.setItem('lk_pin', state.pin);
+
+      // Populate state.campaigns with ALL campaigns discovered in this Firebase project
+      const now = Date.now();
+      state.campaigns = campaignIds.map(id => ({ id, createdAt: now }));
+      localStorage.setItem('lk_campaigns', JSON.stringify(state.campaigns));
+
       saveLocal();
       render();
-      // Now connect with the chosen campaign
+      // Connect with the chosen campaign
       initFirebase(config, campaignId, true);
       updateSyncUI(); updateCampaignBtn(); updateRoleUI();
       openInlineNotice(`✓ Connected to campaign: ${campaignId}`);
