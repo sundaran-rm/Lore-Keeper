@@ -160,6 +160,8 @@
 :root[data-theme="parchment"] .quick-capture,
 :root[data-theme="parchment"] .dice-roller { box-shadow: 0 8px 32px rgba(100,70,20,0.2); }
 
+.export-menu-item:hover { background: var(--surface) !important; color: var(--text) !important; }
+
 /* ── THEME PICKER CSS ── */
 .theme-picker-grid {
   display: grid;
@@ -4331,16 +4333,29 @@ mark {
     </div>
     <div class="modal-footer">
       <button class="btn btn-ghost modal-footer-left" id="managePinBtn">🔒 Set PIN</button>
-      <button class="btn btn-ghost btn-sm" id="exportBtn" title="Export entries as JSON">↓ Export</button>
-      <button class="btn btn-ghost btn-sm" id="importCampaignBtn">↑ Import</button>
+      <div style="position:relative;display:inline-flex">
+        <button class="btn btn-ghost btn-sm" id="exportMenuBtn" title="Export entries">↓ Export ▾</button>
+        <div id="exportMenu" style="display:none;position:absolute;bottom:calc(100% + 4px);left:0;background:var(--surface2);border:1px solid var(--border2);border-radius:6px;box-shadow:0 8px 24px rgba(0,0,0,0.5);z-index:100;min-width:130px;overflow:hidden">
+          <button class="export-menu-item" id="exportJsonBtn" style="display:block;width:100%;text-align:left;padding:0.55rem 0.85rem;background:none;border:none;cursor:pointer;font-family:'Cinzel',serif;font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--text-dim);transition:background .12s">JSON</button>
+          <button class="export-menu-item" id="exportCsvBtn" style="display:block;width:100%;text-align:left;padding:0.55rem 0.85rem;background:none;border:none;cursor:pointer;font-family:'Cinzel',serif;font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--text-dim);border-top:1px solid var(--border);transition:background .12s">CSV</button>
+        </div>
+      </div>
+      <div style="position:relative;display:inline-flex">
+        <button class="btn btn-ghost btn-sm" id="importMenuBtn">↑ Import ▾</button>
+        <div id="importMenu" style="display:none;position:absolute;bottom:calc(100% + 4px);left:0;background:var(--surface2);border:1px solid var(--border2);border-radius:6px;box-shadow:0 8px 24px rgba(0,0,0,0.5);z-index:100;min-width:130px;overflow:hidden">
+          <button class="export-menu-item" id="importJsonBtn" style="display:block;width:100%;text-align:left;padding:0.55rem 0.85rem;background:none;border:none;cursor:pointer;font-family:'Cinzel',serif;font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--text-dim);transition:background .12s">JSON</button>
+          <button class="export-menu-item" id="importCsvBtn" style="display:block;width:100%;text-align:left;padding:0.55rem 0.85rem;background:none;border:none;cursor:pointer;font-family:'Cinzel',serif;font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--text-dim);border-top:1px solid var(--border);transition:background .12s">CSV</button>
+        </div>
+      </div>
       <button class="btn btn-danger btn-sm" id="resetAllBtn" title="Wipe all local data">⚠ Reset</button>
       <button class="btn btn-ghost" data-close="campaignBackdrop">Close</button>
     </div>
   </div>
 </div>
 
-<!-- hidden file input for campaign import -->
+<!-- hidden file inputs for campaign import -->
 <input type="file" id="importFileInput" accept=".json" style="display:none">
+<input type="file" id="importCsvFileInput" accept=".csv" style="display:none">
 
 <!-- ══ MERGE CONFIRM MODAL ══ -->
 <div class="backdrop" id="mergeConfirmBackdrop">
@@ -5677,6 +5692,149 @@ function exportData() {
   });
   a.click();
   URL.revokeObjectURL(url);
+}
+
+function exportDataCsv() {
+  if (!state.entries.length) { openInlineNotice('No entries to export.'); return; }
+
+  // Collect all possible field keys across all categories
+  const allFieldKeys = new Set();
+  state.entries.forEach(e => Object.keys(e.fields || {}).forEach(k => allFieldKeys.add(k)));
+
+  const BASE_COLS = ['id','category','name','description','dmDescription','tags','dmOnly','revealedToPlayers','pinned','createdAt','updatedAt'];
+  const fieldCols = [...allFieldKeys];
+  const allCols   = [...BASE_COLS, ...fieldCols.map(k => `field_${k}`), 'links','image'];
+
+  const csvEscape = v => {
+    if (v === null || v === undefined) return '';
+    const s = String(v);
+    // Wrap in quotes if contains comma, newline, or quote
+    if (s.includes(',') || s.includes('\n') || s.includes('"')) {
+      return '"' + s.replace(/"/g, '""') + '"';
+    }
+    return s;
+  };
+
+  const rows = [allCols.join(',')]; // header
+
+  state.entries.forEach(e => {
+    const row = allCols.map(col => {
+      if (col === 'tags')              return csvEscape((e.tags || []).join(';'));
+      if (col === 'links')             return csvEscape((e.links || []).join(';'));
+      if (col === 'createdAt')         return csvEscape(e.createdAt ? new Date(e.createdAt).toISOString() : '');
+      if (col === 'updatedAt')         return csvEscape(e.updatedAt ? new Date(e.updatedAt).toISOString() : '');
+      if (col === 'image')             return csvEscape(e.image ? '[image]' : ''); // skip base64
+      if (col.startsWith('field_'))    return csvEscape((e.fields || {})[col.slice(6)] || '');
+      return csvEscape(e[col] ?? '');
+    });
+    rows.push(row.join(','));
+  });
+
+  const csv  = rows.join('\r\n');
+  const url  = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8;' }));
+  const a    = Object.assign(document.createElement('a'), {
+    href: url, download: `lore-keeper-${new Date().toISOString().slice(0,10)}.csv`
+  });
+  a.click();
+  URL.revokeObjectURL(url);
+  openInlineNotice(`✓ Exported ${state.entries.length} entries as CSV.`);
+}
+
+async function handleImportCsvFile(file) {
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = async e => {
+    try {
+      const text = e.target.result;
+      const lines = text.split(/\r?\n/).filter(l => l.trim());
+      if (lines.length < 2) throw new Error('CSV has no data rows.');
+
+      // Parse CSV header
+      const parseCsvLine = line => {
+        const result = [];
+        let cur = '', inQ = false;
+        for (let i = 0; i < line.length; i++) {
+          const ch = line[i];
+          if (ch === '"') {
+            if (inQ && line[i+1] === '"') { cur += '"'; i++; }
+            else inQ = !inQ;
+          } else if (ch === ',' && !inQ) {
+            result.push(cur); cur = '';
+          } else { cur += ch; }
+        }
+        result.push(cur);
+        return result;
+      };
+
+      const headers = parseCsvLine(lines[0]);
+      const data    = lines.slice(1).map(line => {
+        const vals = parseCsvLine(line);
+        const obj  = {};
+        headers.forEach((h, i) => { obj[h] = vals[i] || ''; });
+        return obj;
+      });
+
+      const now = Date.now();
+      const valid = data
+        .filter(row => row.id && row.name)
+        .map(row => {
+          const entry = {
+            id:          row.id,
+            category:    row.category    || 'lore',
+            name:        row.name        || '',
+            description: row.description || '',
+            dmDescription: row.dmDescription || '',
+            tags:  row.tags  ? row.tags.split(';').filter(Boolean)  : [],
+            links: row.links ? row.links.split(';').filter(Boolean) : [],
+            dmOnly:            row.dmOnly === 'true',
+            revealedToPlayers: row.revealedToPlayers === 'true',
+            pinned:            row.pinned === 'true',
+            createdAt: row.createdAt ? new Date(row.createdAt).getTime() || now : now,
+            updatedAt: row.updatedAt ? new Date(row.updatedAt).getTime() || now : now,
+            fields:    {},
+            changelog: [],
+            image:     null,
+          };
+          // Restore dynamic fields
+          headers.filter(h => h.startsWith('field_')).forEach(h => {
+            if (row[h]) entry.fields[h.slice(6)] = row[h];
+          });
+          return entry;
+        });
+
+      if (!valid.length) throw new Error('No valid entries found in CSV.');
+
+      const existingIds = new Set(state.entries.map(en => en.id));
+      const toAdd = valid.filter(d => !existingIds.has(d.id));
+      const skipped = valid.length - toAdd.length;
+
+      if (!toAdd.length) {
+        openInlineNotice('All entries already exist — nothing imported.');
+        document.getElementById('importCsvFileInput').value = '';
+        return;
+      }
+
+      if (db && state.fb.campaignId) {
+        const CHUNK = 499;
+        for (let i = 0; i < toAdd.length; i += CHUNK) {
+          const batch = db.batch();
+          toAdd.slice(i, i + CHUNK).forEach(d => batch.set(entryCollection().doc(d.id), d));
+          await batch.commit();
+        }
+      } else {
+        toAdd.forEach(d => state.entries.push(d));
+        saveLocal();
+        render();
+      }
+
+      closeModal('campaignBackdrop');
+      openInlineNotice(`✓ Imported ${toAdd.length} entr${toAdd.length===1?'y':'ies'}${skipped ? `, ${skipped} duplicate(s) skipped` : ''}.`);
+    } catch(err) {
+      openInlineNotice('CSV import failed: ' + err.message);
+    }
+    document.getElementById('importCsvFileInput').value = '';
+  };
+  reader.readAsText(file);
 }
 
 /* ════════════════════════════════════════
@@ -8806,17 +8964,61 @@ document.getElementById('managePinBtn').addEventListener('click', () => {
   openPinSetup();
 });
 
-// Import — PIN-gated
-document.getElementById('importCampaignBtn').addEventListener('click', () => {
-  pinGate('Import campaign data', () => document.getElementById('importFileInput').click());
-});
+// Export / Import menus — toggle on button click, close on outside click
+(function() {
+  const exportMenuBtn = document.getElementById('exportMenuBtn');
+  const importMenuBtn = document.getElementById('importMenuBtn');
+  const exportMenu    = document.getElementById('exportMenu');
+  const importMenu    = document.getElementById('importMenu');
+
+  exportMenuBtn.addEventListener('click', e => {
+    e.stopPropagation();
+    const open = exportMenu.style.display !== 'none';
+    exportMenu.style.display = open ? 'none' : 'block';
+    importMenu.style.display = 'none';
+  });
+  importMenuBtn.addEventListener('click', e => {
+    e.stopPropagation();
+    const open = importMenu.style.display !== 'none';
+    importMenu.style.display = open ? 'none' : 'block';
+    exportMenu.style.display = 'none';
+  });
+  document.addEventListener('click', () => {
+    exportMenu.style.display = 'none';
+    importMenu.style.display = 'none';
+  });
+
+  // Export JSON — PIN-gated
+  document.getElementById('exportJsonBtn').addEventListener('click', e => {
+    e.stopPropagation();
+    exportMenu.style.display = 'none';
+    pinGate('Export campaign data as JSON', exportData);
+  });
+  // Export CSV — PIN-gated
+  document.getElementById('exportCsvBtn').addEventListener('click', e => {
+    e.stopPropagation();
+    exportMenu.style.display = 'none';
+    pinGate('Export campaign data as CSV', exportDataCsv);
+  });
+  // Import JSON — PIN-gated
+  document.getElementById('importJsonBtn').addEventListener('click', e => {
+    e.stopPropagation();
+    importMenu.style.display = 'none';
+    pinGate('Import campaign data (JSON)', () => document.getElementById('importFileInput').click());
+  });
+  // Import CSV — PIN-gated
+  document.getElementById('importCsvBtn').addEventListener('click', e => {
+    e.stopPropagation();
+    importMenu.style.display = 'none';
+    pinGate('Import campaign data (CSV)', () => document.getElementById('importCsvFileInput').click());
+  });
+})();
+
 document.getElementById('importFileInput').addEventListener('change', e => {
   handleImportFile(e.target.files[0]);
 });
-
-// Export entries (campaign modal footer) — PIN-gated
-document.getElementById('exportBtn').addEventListener('click', () => {
-  pinGate('Export campaign data', exportData);
+document.getElementById('importCsvFileInput').addEventListener('change', e => {
+  handleImportCsvFile(e.target.files[0]);
 });
 
 // 5.3. Connection profile — all PIN-gated
