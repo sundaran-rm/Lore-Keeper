@@ -3369,6 +3369,509 @@ mark {
 .cs-notes:focus { border-color: var(--gold-dim); }
 
 /* ══════════════════════════════════
+   HELP MODAL
+══════════════════════════════════ */
+.help-backdrop {
+  position: fixed; inset: 0;
+  background: rgba(4,3,2,0.92);
+  z-index: 600;
+  display: flex; align-items: center; justify-content: center;
+  padding: 1rem;
+  backdrop-filter: blur(6px);
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.25s;
+}
+.help-backdrop.open { opacity: 1; pointer-events: all; }
+
+.help-modal {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 10px;
+  width: 100%; max-width: 780px;
+  max-height: 90vh;
+  display: flex; flex-direction: column;
+  box-shadow: 0 24px 80px rgba(0,0,0,0.85);
+  transform: translateY(20px) scale(0.97);
+  transition: transform 0.28s cubic-bezier(0.22,1,0.36,1);
+}
+.help-backdrop.open .help-modal { transform: translateY(0) scale(1); }
+
+.help-header {
+  display: flex; align-items: center; gap: 0.75rem;
+  padding: 1rem 1.5rem; border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.help-title {
+  font-family: 'Cinzel', serif; font-size: 0.9rem; font-weight: 600;
+  letter-spacing: 0.1em; text-transform: uppercase; color: var(--gold);
+  flex: 1;
+}
+.help-role-badge {
+  font-family: 'Cinzel', serif; font-size: 9px; font-weight: 700;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  padding: 3px 10px; border-radius: 10px;
+}
+
+.help-body {
+  display: flex; flex: 1; overflow: hidden;
+}
+
+/* Sidebar nav */
+.help-nav {
+  width: 190px; flex-shrink: 0;
+  border-right: 1px solid var(--border);
+  overflow-y: auto; padding: 0.75rem 0;
+}
+.help-nav-section {
+  font-family: 'Cinzel', serif; font-size: 8.5px; font-weight: 700;
+  letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--text-faint); padding: 0.5rem 1rem 0.25rem;
+  margin-top: 0.25rem;
+}
+.help-nav-item {
+  display: block; width: 100%; text-align: left;
+  padding: 0.45rem 1rem; background: none; border: none; cursor: pointer;
+  font-family: 'Cinzel', serif; font-size: 10px; font-weight: 500;
+  letter-spacing: 0.07em; color: var(--text-faint);
+  transition: all 0.13s; border-left: 2px solid transparent;
+}
+.help-nav-item:hover { color: var(--text-dim); background: var(--surface2); }
+.help-nav-item.active { color: var(--gold); border-left-color: var(--gold); background: rgba(201,167,76,0.06); }
+
+/* Content area */
+.help-content {
+  flex: 1; overflow-y: auto; padding: 1.5rem;
+}
+.help-section-title {
+  font-family: 'Cinzel', serif; font-size: 1rem; font-weight: 700;
+  color: var(--gold); margin-bottom: 0.3rem; line-height: 1.3;
+}
+.help-section-sub {
+  font-size: 13px; color: var(--text-faint); font-style: italic;
+  margin-bottom: 1.1rem;
+}
+.help-block { margin-bottom: 1.5rem; }
+.help-block:last-child { margin-bottom: 0; }
+.help-block-title {
+  font-family: 'Cinzel', serif; font-size: 10px; font-weight: 700;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--text-dim); margin-bottom: 0.5rem;
+  padding-bottom: 0.35rem; border-bottom: 1px solid var(--border);
+}
+.help-row {
+  display: flex; gap: 0.75rem; align-items: flex-start;
+  padding: 0.5rem 0; border-bottom: 1px solid var(--border);
+}
+.help-row:last-child { border-bottom: none; }
+.help-key {
+  font-family: 'Cinzel', serif; font-size: 9.5px; font-weight: 700;
+  letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--text); background: var(--surface2);
+  border: 1px solid var(--border2); border-radius: 4px;
+  padding: 2px 8px; white-space: nowrap; flex-shrink: 0;
+  min-width: 80px; text-align: center;
+}
+.help-desc { font-size: 14px; color: var(--text-dim); line-height: 1.6; flex: 1; }
+.help-desc strong { color: var(--text); font-weight: 600; }
+.help-tip {
+  background: rgba(201,167,76,0.07); border: 1px solid rgba(201,167,76,0.2);
+  border-radius: 6px; padding: 0.65rem 0.9rem;
+  font-size: 13.5px; color: var(--text-dim); line-height: 1.65;
+  margin-bottom: 0.6rem;
+}
+.help-tip strong { color: var(--gold-dim); font-weight: 600; }
+.help-warn {
+  background: rgba(212,90,90,0.06); border: 1px solid rgba(212,90,90,0.2);
+  border-radius: 6px; padding: 0.65rem 0.9rem;
+  font-size: 13.5px; color: var(--text-dim); line-height: 1.65;
+  margin-bottom: 0.6rem;
+}
+.help-warn strong { color: #d45a5a; font-weight: 600; }
+.help-chip-row { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 0.65rem; }
+.help-chip {
+  font-family: 'Cinzel', serif; font-size: 9px; font-weight: 700;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  padding: 3px 10px; border-radius: 10px; border: 1px solid;
+}
+
+/* ══════════════════════════════════
+   MARKDOWN / RICH TEXT
+══════════════════════════════════ */
+.md-content { font-size: 15.5px; color: var(--text-dim); line-height: 1.75; }
+.md-content p  { margin: 0 0 0.65rem; }
+.md-content p:last-child { margin-bottom: 0; }
+.md-content h1 { font-family:'Cinzel',serif; font-size:1.1rem; font-weight:700; color:var(--text); margin:0.9rem 0 0.4rem; }
+.md-content h2 { font-family:'Cinzel',serif; font-size:0.95rem; font-weight:600; color:var(--text); margin:0.75rem 0 0.35rem; }
+.md-content h3 { font-family:'Cinzel',serif; font-size:0.85rem; font-weight:600; color:var(--text-dim); margin:0.65rem 0 0.3rem; }
+.md-content strong { color:var(--text); font-weight:700; }
+.md-content em { font-style:italic; color:var(--text-dim); }
+.md-content code { font-family:monospace; font-size:13px; background:var(--surface2); border:1px solid var(--border); border-radius:3px; padding:1px 5px; color:var(--gold-dim); }
+.md-content ul,.md-content ol { padding-left:1.4rem; margin:0 0 0.65rem; }
+.md-content li { margin-bottom:0.2rem; }
+.md-content blockquote { border-left:3px solid var(--gold-dim); padding:0.35rem 0.85rem; margin:0.5rem 0; background:rgba(201,167,76,0.05); border-radius:0 4px 4px 0; color:var(--text-dim); font-style:italic; }
+.md-content hr { border:none; border-top:1px solid var(--border); margin:0.75rem 0; }
+.md-content a { color:var(--gold-dim); text-decoration:underline; }
+
+.desc-editor-wrap { position:relative; }
+.desc-mode-toggle {
+  position:absolute; top:0; right:0;
+  display:flex; gap:2px;
+  background:var(--surface2); border:1px solid var(--border);
+  border-radius:4px; padding:2px; z-index:2;
+}
+.desc-mode-btn {
+  font-family:'Cinzel',serif; font-size:9px; font-weight:700;
+  letter-spacing:.08em; text-transform:uppercase;
+  padding:2px 8px; border-radius:3px; border:none; cursor:pointer;
+  background:none; color:var(--text-faint); transition:all .15s;
+}
+.desc-mode-btn.active { background:var(--surface); color:var(--text-dim); }
+.desc-preview {
+  min-height:105px; padding:0.55rem 0.85rem;
+  background:var(--bg2); border:1px solid var(--border);
+  border-radius:5px; box-sizing:border-box;
+}
+.md-toolbar {
+  display:flex; gap:2px; margin-bottom:4px; flex-wrap:wrap;
+}
+.md-tool-btn {
+  font-family:monospace; font-size:12px; font-weight:700;
+  padding:2px 7px; border-radius:3px; border:1px solid var(--border);
+  background:var(--surface2); color:var(--text-dim); cursor:pointer;
+  transition:all .12s; line-height:1.5;
+}
+.md-tool-btn:hover { background:var(--surface); color:var(--text); border-color:var(--border2); }
+
+/* ══════════════════════════════════
+   MERGE ENTRY MODAL
+══════════════════════════════════ */
+.merge-entry-row {
+  display:flex; align-items:center; gap:0.6rem;
+  padding:0.55rem 0.75rem;
+  background:var(--bg2); border:1px solid var(--border);
+  border-radius:6px; margin-bottom:0.4rem; cursor:pointer;
+  transition:border-color .15s;
+}
+.merge-entry-row:hover { border-color:var(--gold-dim); background:rgba(201,167,76,0.04); }
+.merge-entry-row.selected { border-color:var(--gold); background:rgba(201,167,76,0.08); }
+
+/* ══════════════════════════════════
+   RANDOM GENERATORS
+══════════════════════════════════ */
+.gen-backdrop {
+  position:fixed; inset:0; background:rgba(4,3,2,0.88);
+  z-index:600; display:flex; align-items:center; justify-content:center;
+  padding:1rem; backdrop-filter:blur(5px);
+  opacity:0; pointer-events:none; transition:opacity .25s;
+}
+.gen-backdrop.open { opacity:1; pointer-events:all; }
+.gen-modal {
+  background:var(--surface); border:1px solid var(--border2);
+  border-radius:10px; width:100%; max-width:560px; max-height:88vh;
+  overflow-y:auto; box-shadow:0 24px 64px rgba(0,0,0,.85);
+  transform:translateY(16px) scale(.975);
+  transition:transform .28s cubic-bezier(.22,1,.36,1);
+}
+.gen-backdrop.open .gen-modal { transform:translateY(0) scale(1); }
+.gen-tabs {
+  display:flex; overflow-x:auto; scrollbar-width:none;
+  border-bottom:1px solid var(--border); background:var(--bg2);
+}
+.gen-tabs::-webkit-scrollbar { display:none; }
+.gen-tab {
+  font-family:'Cinzel',serif; font-size:9.5px; font-weight:600;
+  letter-spacing:.1em; text-transform:uppercase;
+  padding:0.55rem 1rem; border:none; background:none;
+  color:var(--text-faint); cursor:pointer; white-space:nowrap;
+  border-bottom:2px solid transparent; transition:all .18s; flex-shrink:0;
+}
+.gen-tab:hover { color:var(--text-dim); }
+.gen-tab.active { color:var(--gold); border-bottom-color:var(--gold); }
+.gen-body { padding:1.25rem 1.5rem; }
+.gen-result {
+  font-family:'Cinzel',serif; font-size:1.3rem; font-weight:700;
+  color:var(--gold); text-align:center; padding:1.25rem;
+  background:var(--bg2); border:1px solid var(--border2);
+  border-radius:8px; margin-bottom:1rem; min-height:72px;
+  display:flex; align-items:center; justify-content:center;
+  line-height:1.4; letter-spacing:.03em;
+  transition:all .2s;
+}
+.gen-sub-result {
+  font-size:13.5px; color:var(--text-dim); text-align:center;
+  margin-top:0.4rem; font-family:'Crimson Pro',serif; font-weight:400;
+  font-style:italic; letter-spacing:0;
+}
+.gen-options { display:flex; flex-wrap:wrap; gap:0.4rem; margin-bottom:1rem; }
+.gen-option-btn {
+  font-family:'Cinzel',serif; font-size:9px; font-weight:600;
+  letter-spacing:.1em; text-transform:uppercase;
+  padding:0.3rem 0.75rem; border-radius:4px;
+  border:1px solid var(--border); background:none;
+  color:var(--text-faint); cursor:pointer; transition:all .15s;
+}
+.gen-option-btn:hover { border-color:var(--border2); color:var(--text-dim); background:var(--surface2); }
+.gen-option-btn.active { border-color:var(--gold-dim); color:var(--gold); background:rgba(201,167,76,0.08); }
+
+/* ══════════════════════════════════
+   INITIATIVE TRACKER / ENCOUNTER BUILDER
+══════════════════════════════════ */
+.combat-backdrop {
+  position:fixed; inset:0; background:var(--bg);
+  z-index:600; display:flex; flex-direction:column;
+  opacity:0; pointer-events:none; transition:opacity .25s;
+}
+.combat-backdrop.open { opacity:1; pointer-events:all; }
+
+.combat-header {
+  display:flex; align-items:center; gap:0.65rem;
+  padding:0.6rem 1rem; border-bottom:1px solid var(--border);
+  background:var(--bg2); flex-shrink:0; flex-wrap:wrap;
+}
+.combat-title {
+  font-family:'Cinzel',serif; font-size:.82rem; font-weight:700;
+  letter-spacing:.12em; text-transform:uppercase; color:#d94a4a; flex-shrink:0;
+}
+.combat-round-display {
+  display:flex; align-items:center; gap:0.4rem;
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:5px; padding:0.2rem 0.65rem; flex-shrink:0;
+}
+.combat-round-label {
+  font-family:'Cinzel',serif; font-size:9px; font-weight:700;
+  letter-spacing:.12em; text-transform:uppercase; color:var(--text-faint);
+}
+.combat-round-num {
+  font-family:'Cinzel',serif; font-size:1.3rem; font-weight:700;
+  color:#d94a4a; min-width:28px; text-align:center; line-height:1;
+}
+.combat-turn-nav {
+  display:flex; align-items:center; gap:0.35rem; flex-shrink:0;
+}
+.combat-nav-btn {
+  font-family:'Cinzel',serif; font-size:10px; font-weight:700;
+  letter-spacing:.08em; text-transform:uppercase;
+  padding:0.3rem 0.75rem; border-radius:4px;
+  border:1px solid var(--border); background:none;
+  color:var(--text-dim); cursor:pointer; transition:all .15s; white-space:nowrap;
+}
+.combat-nav-btn:hover { border-color:var(--border2); background:var(--surface2); }
+.combat-nav-btn.primary {
+  background:linear-gradient(135deg,#7a2020,#a83030);
+  color:#ffcaca; border-color:#d45a5a;
+  box-shadow:0 1px 8px rgba(212,90,90,.3);
+}
+.combat-nav-btn.primary:hover { background:linear-gradient(135deg,#a83030,#c04040); }
+
+.combat-body { flex:1; display:flex; overflow:hidden; min-height:0; }
+
+/* Combatant list */
+.combat-list-wrap { flex:1; overflow-y:auto; padding:0.75rem; display:flex; flex-direction:column; gap:0.45rem; }
+.combatant-card {
+  border-radius:8px; border:2px solid var(--border); background:var(--surface);
+  transition:border-color .18s, box-shadow .18s;
+  user-select:none; cursor:grab;
+}
+.combatant-card:hover { border-color:var(--border2); }
+.combatant-card.active-turn {
+  border-color:#d94a4a;
+  box-shadow:0 0 0 3px rgba(217,74,74,.12), 0 4px 20px rgba(217,74,74,.1);
+}
+.combatant-card.unconscious { opacity:.6; }
+.combatant-card.dragging-cbt { opacity:.45; cursor:grabbing; }
+
+.combatant-inner {
+  display:flex; align-items:center; gap:0.65rem;
+  padding:0.55rem 0.75rem;
+}
+.combatant-turn-badge {
+  width:22px; height:22px; border-radius:50%; flex-shrink:0;
+  display:flex; align-items:center; justify-content:center;
+  font-family:'Cinzel',serif; font-size:9px; font-weight:700;
+  border:2px solid var(--border2); color:var(--text-faint); background:var(--surface2);
+}
+.combatant-card.active-turn .combatant-turn-badge {
+  background:#d94a4a; border-color:#d94a4a; color:#fff;
+}
+.combatant-initiative-box {
+  text-align:center; min-width:36px; flex-shrink:0;
+}
+.combatant-init-num {
+  font-family:'Cinzel',serif; font-size:1.4rem; font-weight:700;
+  color:var(--text); line-height:1; cursor:pointer;
+}
+.combatant-init-num:hover { color:var(--gold); }
+.combatant-init-label {
+  font-family:'Cinzel',serif; font-size:7.5px; letter-spacing:.1em;
+  text-transform:uppercase; color:var(--text-faint);
+}
+.combatant-info { flex:1; min-width:0; }
+.combatant-name {
+  font-family:'Cinzel',serif; font-size:12px; font-weight:600;
+  color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  margin-bottom:2px;
+}
+.combatant-card.active-turn .combatant-name { color:#ff9090; }
+.combatant-meta { font-size:11px; color:var(--text-faint); display:flex; gap:0.5rem; }
+
+/* HP section */
+.combatant-hp-section { display:flex; flex-direction:column; align-items:center; flex-shrink:0; min-width:80px; }
+.combatant-hp-nums {
+  font-family:'Cinzel',serif; font-size:11px; font-weight:700;
+  color:var(--text); cursor:pointer; text-align:center; line-height:1.2;
+}
+.combatant-hp-nums:hover { color:var(--gold); }
+.combatant-hp-bar-wrap { width:100%; background:var(--border); border-radius:3px; height:5px; overflow:hidden; margin-top:3px; }
+.combatant-hp-bar-fill { height:100%; border-radius:3px; transition:width .3s; }
+
+/* Conditions */
+.combatant-conditions { display:flex; flex-wrap:wrap; gap:3px; padding:0 0.75rem 0.5rem; }
+.cond-pill {
+  font-family:'Cinzel',serif; font-size:8px; font-weight:700; letter-spacing:.08em;
+  text-transform:uppercase; padding:1px 7px; border-radius:10px;
+  cursor:pointer; border:1px solid; transition:all .12s;
+}
+.cond-pill.inactive { color:var(--text-faint); border-color:var(--border); background:none; opacity:.5; }
+.cond-pill.active { opacity:1; }
+
+/* Combat sidebar */
+.combat-sidebar {
+  width:290px; flex-shrink:0; border-left:1px solid var(--border);
+  background:var(--surface); display:flex; flex-direction:column;
+  overflow:hidden;
+}
+.combat-sidebar-tabs {
+  display:flex; border-bottom:1px solid var(--border); background:var(--bg2);
+}
+.cbt-stab {
+  flex:1; font-family:'Cinzel',serif; font-size:9px; font-weight:700;
+  letter-spacing:.1em; text-transform:uppercase; border:none; background:none;
+  color:var(--text-faint); cursor:pointer; padding:0.55rem 0.5rem;
+  border-bottom:2px solid transparent; transition:all .15s;
+}
+.cbt-stab:hover { color:var(--text-dim); }
+.cbt-stab.active { color:#d94a4a; border-bottom-color:#d94a4a; }
+.combat-sidebar-body { flex:1; overflow-y:auto; padding:0.75rem; }
+
+/* HP editor popover */
+.hp-popover {
+  position:absolute; z-index:50;
+  background:var(--surface2); border:1px solid var(--border2);
+  border-radius:8px; padding:0.75rem; box-shadow:0 8px 28px rgba(0,0,0,.5);
+  min-width:160px;
+}
+.hp-popover-input {
+  width:100%; text-align:center; font-family:'Cinzel',serif;
+  font-size:1.3rem; font-weight:700; color:var(--text);
+  background:var(--bg2); border:1px solid var(--border2);
+  border-radius:5px; outline:none; padding:0.3rem; margin-bottom:0.5rem;
+  box-sizing:border-box;
+}
+.hp-popover-btns { display:flex; gap:0.4rem; }
+
+/* ══════════════════════════════════
+   IN-WORLD CALENDAR
+══════════════════════════════════ */
+.calendar-backdrop {
+  position:fixed; inset:0; background:var(--bg);
+  z-index:600; display:flex; flex-direction:column;
+  opacity:0; pointer-events:none; transition:opacity .25s;
+}
+.calendar-backdrop.open { opacity:1; pointer-events:all; }
+
+.cal-header {
+  display:flex; align-items:center; gap:0.65rem;
+  padding:0.6rem 1rem; border-bottom:1px solid var(--border);
+  background:var(--bg2); flex-shrink:0;
+}
+.cal-title {
+  font-family:'Cinzel',serif; font-size:.82rem; font-weight:700;
+  letter-spacing:.12em; text-transform:uppercase; color:var(--gold);
+}
+.cal-nav-btn {
+  font-family:'Cinzel',serif; font-size:10px; font-weight:700;
+  letter-spacing:.08em; text-transform:uppercase;
+  padding:0.28rem 0.65rem; border-radius:4px;
+  border:1px solid var(--border); background:none;
+  color:var(--text-faint); cursor:pointer; transition:all .15s;
+}
+.cal-nav-btn:hover { border-color:var(--border2); color:var(--text-dim); background:var(--surface2); }
+.cal-month-year {
+  font-family:'Cinzel',serif; font-size:1rem; font-weight:700;
+  color:var(--text); min-width:200px; text-align:center;
+}
+
+.cal-body { flex:1; display:flex; overflow:hidden; }
+.cal-main { flex:1; overflow-y:auto; padding:1rem; }
+.cal-sidebar-panel {
+  width:240px; flex-shrink:0; border-left:1px solid var(--border);
+  background:var(--surface); overflow-y:auto; padding:0.85rem;
+}
+
+/* Week header */
+.cal-week-header {
+  display:grid; gap:1px; margin-bottom:2px;
+}
+.cal-weekday-label {
+  font-family:'Cinzel',serif; font-size:9px; font-weight:700;
+  letter-spacing:.1em; text-transform:uppercase; color:var(--text-faint);
+  text-align:center; padding:0.35rem;
+}
+
+/* Calendar grid */
+.cal-grid { display:grid; gap:1px; background:var(--border); border:1px solid var(--border); border-radius:6px; overflow:hidden; }
+.cal-cell {
+  background:var(--surface); padding:0.45rem 0.55rem;
+  min-height:80px; cursor:pointer; transition:background .12s; position:relative;
+}
+.cal-cell:hover { background:var(--surface2); }
+.cal-cell.today { background:rgba(201,167,76,.07); outline:1px solid var(--gold-dim); outline-offset:-1px; }
+.cal-cell.other-month { opacity:.3; cursor:default; }
+.cal-cell.special-day { background:rgba(157,111,217,.07); }
+.cal-day-num {
+  font-family:'Cinzel',serif; font-size:11px; font-weight:600;
+  color:var(--text-dim); margin-bottom:0.25rem; line-height:1;
+}
+.cal-cell.today .cal-day-num { color:var(--gold); }
+.cal-cell-event {
+  font-size:10px; padding:1px 5px; border-radius:3px;
+  margin-bottom:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  line-height:1.4;
+}
+
+/* Config panel */
+.cal-config-section {
+  font-family:'Cinzel',serif; font-size:9px; font-weight:700;
+  letter-spacing:.14em; text-transform:uppercase;
+  color:var(--text-dim); margin:0.75rem 0 0.4rem;
+  padding-bottom:.3rem; border-bottom:1px solid var(--border);
+}
+.cal-preset-btn {
+  display:block; width:100%; text-align:left;
+  padding:0.4rem 0.65rem; border-radius:5px;
+  border:1px solid var(--border); background:none;
+  color:var(--text-dim); cursor:pointer; font-family:'Crimson Pro',serif;
+  font-size:14px; margin-bottom:0.3rem; transition:all .12s;
+}
+.cal-preset-btn:hover { border-color:var(--border2); background:var(--surface2); color:var(--text); }
+.cal-preset-btn.active { border-color:var(--gold-dim); background:rgba(201,167,76,.07); color:var(--gold); }
+
+/* Current date display */
+.cal-current-date-box {
+  background:var(--bg2); border:1px solid var(--border);
+  border-radius:6px; padding:0.6rem 0.75rem; margin-bottom:0.75rem;
+  text-align:center;
+}
+.cal-current-date-label {
+  font-family:'Cinzel',serif; font-size:8.5px; font-weight:700;
+  letter-spacing:.12em; text-transform:uppercase; color:var(--text-faint);
+  margin-bottom:0.2rem;
+}
+.cal-current-date-val {
+  font-family:'Cinzel',serif; font-size:13px; font-weight:600; color:var(--gold);
+}
+
+/* ══════════════════════════════════
    OFFLINE SYNC QUEUE
 ══════════════════════════════════ */
 .sync-queue-indicator {
@@ -3820,6 +4323,7 @@ mark {
       </button>
       <button class="sync-queue-indicator idle" id="syncQueueBtn" title="Offline write queue — click to retry"></button>
       <button class="btn btn-ghost btn-sm" id="themeBtn" title="Change Theme">◑ Theme</button>
+      <button class="btn btn-ghost btn-sm" id="helpBtn" title="Help">? Help</button>
       <button class="btn btn-ghost btn-sm sync-indicator" id="firebaseBtn" title="Configure cloud sync">
         <span class="sync-dot" id="syncDot"></span>
         Sync
@@ -3837,14 +4341,16 @@ mark {
 <!-- ══ MAIN ══ -->
 <main class="main">
   <div class="toolbar">
-    <span class="toolbar-label" id="toolbarLabel">All Entries</span>
     <div style="display:flex;align-items:center;gap:0.6rem;flex-wrap:wrap">
       <button class="btn btn-ghost btn-sm" id="charSheetBtn" title="Character Sheets (C)">🧙 Characters</button>
+      <button class="btn btn-ghost btn-sm" id="combatBtn" title="Initiative Tracker &amp; Encounter Builder">⚔ Combat</button>
+      <button class="btn btn-ghost btn-sm" id="calendarBtn" title="In-World Calendar">📅 Calendar</button>
       <button class="btn btn-ghost btn-sm" id="kanbanBtn" title="Quest Board (Kanban)">▦ Quest Board</button>
       <button class="btn btn-ghost btn-sm" id="timelineBtn" title="Campaign Timeline">⟳ Timeline</button>
       <button class="btn btn-ghost btn-sm" id="graphBtn" title="Relationship Graph">◈ Graph</button>
       <button class="btn btn-ghost btn-sm" id="pinboardBtn" title="Pinboard — arrange entries freely (P)">📌 Pinboard</button>
       <button class="btn btn-ghost btn-sm" id="dashboardBtn" title="Status Dashboard">⊟ Dashboard</button>
+      <button class="btn btn-ghost btn-sm" id="generatorsBtn" title="Random Generators">⚄ Generate</button>
       <button class="btn btn-ghost btn-sm" id="bulkSelectBtn" title="Select multiple cards">☐ Select</button>
       <button class="btn btn-ghost btn-sm" id="templatesBtn" title="Entry Templates">⊞ Templates</button>
       <div class="sort-group">
@@ -4055,8 +4561,24 @@ mark {
       </div>
 
       <div class="form-group">
-        <label>Description <span style="color:var(--text-faint);font-family:'Crimson Pro',serif;font-weight:400;text-transform:none;letter-spacing:0">(visible to players)</span></label>
-        <textarea id="fDesc" placeholder="Describe this entry in detail…"></textarea>
+        <label>Description <span style="color:var(--text-faint);font-family:'Crimson Pro',serif;font-weight:400;text-transform:none;letter-spacing:0">(visible to players · supports **bold**, *italic*, # headers, - lists, > quotes)</span></label>
+        <div class="desc-editor-wrap">
+          <div class="md-toolbar" id="descToolbar">
+            <button type="button" class="md-tool-btn" data-md="**" title="Bold">B</button>
+            <button type="button" class="md-tool-btn" data-md="*" title="Italic"><em>I</em></button>
+            <button type="button" class="md-tool-btn" data-md-line="## " title="Heading">H</button>
+            <button type="button" class="md-tool-btn" data-md-line="- " title="List">≡</button>
+            <button type="button" class="md-tool-btn" data-md-line="> " title="Quote">❝</button>
+            <button type="button" class="md-tool-btn" data-md="`" title="Code">&lt;/&gt;</button>
+            <button type="button" class="md-tool-btn" data-md-line="---" title="Divider">—</button>
+            <div style="margin-left:auto;display:flex;gap:2px">
+              <button type="button" class="desc-mode-btn active" id="descModeEdit">Edit</button>
+              <button type="button" class="desc-mode-btn" id="descModePreview">Preview</button>
+            </div>
+          </div>
+          <textarea id="fDesc" placeholder="Describe this entry in detail… Use **bold**, *italic*, ## headings, - lists"></textarea>
+          <div id="descPreview" class="desc-preview md-content" style="display:none"></div>
+        </div>
       </div>
 
       <div class="dm-desc-section" id="dmDescSection">
@@ -4440,6 +4962,130 @@ mark {
     <div class="modal-footer">
       <button class="btn btn-ghost" id="warnDataLossCancelBtn2">Cancel — keep local data</button>
       <button class="btn btn-danger" id="warnDataLossOkBtn">Clear &amp; Connect</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MERGE ENTRY MODAL ══ -->
+<div class="backdrop" id="mergeEntryBackdrop">
+  <div class="modal" style="max-width:500px">
+    <div class="modal-header">
+      <span class="modal-title">⊗ Merge Entries</span>
+      <button class="modal-close" data-close="mergeEntryBackdrop">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="notice" style="margin-bottom:1rem;border-color:rgba(208,122,34,0.3);background:rgba(208,122,34,0.06);color:var(--amber)">
+        ⚠ The selected entry will be <strong>deleted</strong> after merging. Links and tags are combined. The base entry's description and fields are kept.
+      </div>
+      <div class="form-group">
+        <label>Base Entry <span style="color:var(--text-faint);text-transform:none;letter-spacing:0;font-family:'Crimson Pro',serif;font-weight:400">(kept)</span></label>
+        <div id="mergeBaseEntry" style="padding:0.55rem 0.85rem;background:var(--bg2);border:1px solid var(--gold-dim);border-radius:5px;font-family:'Cinzel',serif;font-size:12px;color:var(--gold)"></div>
+      </div>
+      <div class="form-group">
+        <label>Merge Into Base <span style="color:var(--text-faint);text-transform:none;letter-spacing:0;font-family:'Crimson Pro',serif;font-weight:400">(will be deleted)</span></label>
+        <input id="mergeSearchInput" type="text" placeholder="Search for entry to merge…" autocomplete="off">
+      </div>
+      <div id="mergeEntryList" style="max-height:240px;overflow-y:auto"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" data-close="mergeEntryBackdrop">Cancel</button>
+      <button class="btn btn-danger" id="mergeConfirmMergeBtn" disabled style="opacity:.4;cursor:not-allowed">⊗ Merge</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ RANDOM GENERATORS ══ -->
+<div class="gen-backdrop" id="genBackdrop">
+  <div class="gen-modal">
+    <div class="modal-header">
+      <span class="modal-title">⚄ Random Generators</span>
+      <button class="modal-close" id="genClose">×</button>
+    </div>
+    <div class="gen-tabs" id="genTabs">
+      <button class="gen-tab active" data-gen="npc">NPC Names</button>
+      <button class="gen-tab" data-gen="place">Place Names</button>
+      <button class="gen-tab" data-gen="tavern">Taverns</button>
+      <button class="gen-tab" data-gen="rumour">Rumours</button>
+      <button class="gen-tab" data-gen="loot">Loot</button>
+      <button class="gen-tab" data-gen="weather">Weather</button>
+      <button class="gen-tab" data-gen="hook">Plot Hooks</button>
+    </div>
+    <div class="gen-body">
+      <div class="gen-result" id="genResult">Click Generate to begin</div>
+      <div id="genOptions" class="gen-options"></div>
+      <div style="display:flex;gap:0.5rem;justify-content:center;flex-wrap:wrap">
+        <button class="btn btn-primary" id="genRollBtn">⚄ Generate</button>
+        <button class="btn btn-ghost btn-sm" id="genSaveBtn" title="Save result as a new entry">+ Save as Entry</button>
+        <button class="btn btn-ghost btn-sm" id="genCopyBtn" title="Copy to clipboard">⎘ Copy</button>
+      </div>
+      <div id="genHistory" style="margin-top:1rem;display:flex;flex-direction:column;gap:0.35rem;max-height:180px;overflow-y:auto"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ INITIATIVE TRACKER / ENCOUNTER BUILDER ══ -->
+<div class="combat-backdrop" id="combatBackdrop">
+  <div class="combat-header">
+    <span class="combat-title">⚔ Initiative Tracker</span>
+    <div class="combat-round-display">
+      <span class="combat-round-label">Round</span>
+      <span class="combat-round-num" id="combatRoundNum">1</span>
+    </div>
+    <div class="combat-turn-nav">
+      <button class="combat-nav-btn" id="combatPrevTurn">◀ Prev</button>
+      <button class="combat-nav-btn primary" id="combatNextTurn">Next Turn ▶</button>
+    </div>
+    <button class="pb-tool-btn" id="combatRollAllBtn" title="Roll initiative for all NPC/monster combatants">⚄ Roll All</button>
+    <button class="pb-tool-btn" id="combatSortBtn" title="Sort by initiative">↕ Sort</button>
+    <button class="pb-tool-btn" id="combatResetBtn" title="Reset round and turn to start">↺ Reset</button>
+    <span style="margin-left:auto;color:var(--border2)">·</span>
+    <button class="pb-tool-btn btn-danger" id="combatEndBtn" style="color:#d45a5a;border-color:rgba(212,90,90,.3)">✕ End Combat</button>
+    <button class="modal-close" id="combatClose">×</button>
+  </div>
+  <div class="combat-body">
+    <!-- Combatant list -->
+    <div class="combat-list-wrap" id="combatList"></div>
+    <!-- Sidebar -->
+    <div class="combat-sidebar">
+      <div class="combat-sidebar-tabs">
+        <button class="cbt-stab active" data-cbt-tab="add">+ Add</button>
+        <button class="cbt-stab" data-cbt-tab="party">Party</button>
+        <button class="cbt-stab" data-cbt-tab="npcs">NPCs</button>
+      </div>
+      <div class="combat-sidebar-body" id="combatSidebarBody"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ IN-WORLD CALENDAR ══ -->
+<div class="calendar-backdrop" id="calendarBackdrop">
+  <div class="cal-header">
+    <span class="cal-title">📅 In-World Calendar</span>
+    <button class="cal-nav-btn" id="calPrevMonth">◀</button>
+    <span class="cal-month-year" id="calMonthYear">—</span>
+    <button class="cal-nav-btn" id="calNextMonth">▶</button>
+    <span style="margin-left:auto;color:var(--border2)">·</span>
+    <button class="pb-tool-btn active" id="calTodayBtn" title="Jump to current in-world date">Today</button>
+    <button class="pb-tool-btn" id="calConfigBtn" title="Calendar settings">⚙ Settings</button>
+    <button class="modal-close" id="calClose">×</button>
+  </div>
+  <div class="cal-body">
+    <div class="cal-main" id="calMain"></div>
+    <div class="cal-sidebar-panel" id="calSidebar"></div>
+  </div>
+</div>
+
+<!-- ══ HELP MODAL ══ -->
+<div class="help-backdrop" id="helpBackdrop">
+  <div class="help-modal">
+    <div class="help-header">
+      <span class="help-title">? Help & Guide</span>
+      <span class="help-role-badge" id="helpRoleBadge"></span>
+      <button class="modal-close" id="helpClose">×</button>
+    </div>
+    <div class="help-body">
+      <nav class="help-nav" id="helpNav"></nav>
+      <div class="help-content" id="helpContent"></div>
     </div>
   </div>
 </div>
@@ -4964,9 +5610,6 @@ function renderTabs() {
   tabs.querySelectorAll('.cat-tab').forEach(btn => {
     btn.addEventListener('click', () => {
       state.category = btn.dataset.cat;
-      const label = CATEGORIES[state.category].label;
-      document.getElementById('toolbarLabel').textContent =
-        state.category === 'all' ? 'All Entries' : label;
       renderTabs();
       renderCards();
     });
@@ -5051,6 +5694,7 @@ function renderCards() {
         <div class="card-actions">
           ${bulkMode ? '' : isDM
             ? `<button class="card-action edit-btn" data-id="${esc(entry.id)}">Edit</button>
+               <button class="card-action dup-btn" data-id="${esc(entry.id)}">Dupe</button>
                <button class="card-action del del-btn" data-id="${esc(entry.id)}">Delete</button>`
             : entry.category === 'session'
               ? `<button class="card-action edit-btn" data-id="${esc(entry.id)}">Edit</button>`
@@ -5082,6 +5726,10 @@ function renderCards() {
 
   grid.querySelectorAll('.edit-btn').forEach(b => b.addEventListener('click', e => {
     e.stopPropagation(); openEditModal(b.dataset.id);
+  }));
+
+  grid.querySelectorAll('.dup-btn').forEach(b => b.addEventListener('click', e => {
+    e.stopPropagation(); duplicateEntry(b.dataset.id);
   }));
 
   grid.querySelectorAll('.del-btn').forEach(b => b.addEventListener('click', e => {
@@ -5261,6 +5909,7 @@ function openEditModal(id) {
   cancelTemplateInput();
   openModal('entryBackdrop');
   document.getElementById('saveAsTemplateBtn').style.display = state.role === 'dm' ? '' : 'none';
+  setTimeout(initDescEditor, 60);
 }
 
 function saveEntry() {
@@ -5479,7 +6128,7 @@ function openViewModal(id) {
     ${entry.image ? `<img class="view-image" src="${esc(entry.image)}" alt="" onerror="this.style.display='none'">` : ''}
     <div class="view-cat" style="color:${cat.color}">${cat.icon} ${cat.label}</div>
     ${sessionNum}
-    ${entry.description ? `<div class="view-description">${esc(entry.description)}</div>` : ''}
+    ${entry.description ? `<div class="view-description md-content">${renderMd(entry.description)}</div>` : ''}
     ${fieldBoxes ? `<div class="view-fields-grid">${fieldBoxes}</div>` : ''}
     ${linksHtml}
     ${tags ? `<div class="card-tags" style="margin-bottom:0.85rem">${tags}</div>` : ''}
@@ -5544,6 +6193,8 @@ function openViewModal(id) {
   document.getElementById('viewFooter').innerHTML = isDM
     ? `<button class="btn btn-ghost btn-sm" id="viewHistoryBtn" style="margin-right:auto">⟳ History</button>
        ${isCharacter ? `<button class="btn btn-ghost" id="viewSheetBtn">⊡ Sheet</button>` : `<button class="btn btn-ghost" id="viewGraphBtn">◈ Graph</button>`}
+       <button class="btn btn-ghost btn-sm" id="viewDupBtn">⊕ Dupe</button>
+       <button class="btn btn-ghost btn-sm" id="viewMergeBtn">⊗ Merge</button>
        <button class="btn btn-ghost" id="viewCloseBtn">Close</button>
        <button class="btn btn-primary" id="viewEditBtn">Edit Entry</button>`
     : isSession
@@ -5568,6 +6219,8 @@ function openViewModal(id) {
   document.getElementById('viewPlayerEditBtn')?.addEventListener('click', () => { closeModal('viewBackdrop'); openPlayerEditModal(id); });
   document.getElementById('viewGraphBtn')?.addEventListener('click', () => { closeModal('viewBackdrop'); openGraph(id); });
   document.getElementById('viewSheetBtn')?.addEventListener('click', () => { closeModal('viewBackdrop'); openCharSheet(id); });
+  document.getElementById('viewDupBtn')?.addEventListener('click', () => { closeModal('viewBackdrop'); duplicateEntry(id); });
+  document.getElementById('viewMergeBtn')?.addEventListener('click', () => { closeModal('viewBackdrop'); openMergeModal(id); });
 
   openModal('viewBackdrop');
 }
@@ -8735,8 +9388,11 @@ document.getElementById('resetConfirmBtn').addEventListener('click', () => {
   resetAllLocalData();
 });
 
-// Add / Save entry
-document.getElementById('addBtn').addEventListener('click', openAddModal);
+// Add / Save entry — init markdown editor when modal opens
+document.getElementById('addBtn').addEventListener('click', () => {
+  openAddModal();
+  setTimeout(initDescEditor, 60);
+});
 document.getElementById('saveEntryBtn').addEventListener('click', saveEntry);
 
 // Role switcher — switching to DM is PIN-gated; switching to Player requires PIN to exist
@@ -8817,8 +9473,27 @@ document.getElementById('fName').addEventListener('keydown', e => {
   if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); saveEntry(); }
 });
 
-// Theme
-document.getElementById('themeBtn').addEventListener('click', openThemePicker);
+// Merge modal
+document.getElementById('mergeSearchInput').addEventListener('input', e => {
+  renderMergeList(e.target.value.trim());
+});
+document.getElementById('mergeConfirmMergeBtn').addEventListener('click', () => {
+  if (!mergeTargetId) return;
+  doMerge();
+});
+
+// Combat Tracker
+document.getElementById('combatBtn').addEventListener('click', openCombat);
+
+// Calendar
+document.getElementById('calendarBtn').addEventListener('click', openCalendar);
+
+// Help
+document.getElementById('helpBtn').addEventListener('click', openHelp);
+document.getElementById('helpClose').addEventListener('click', closeHelp);
+document.getElementById('helpBackdrop').addEventListener('click', e => {
+  if (e.target === document.getElementById('helpBackdrop')) closeHelp();
+});
 
 // Timeline
 document.getElementById('timelineBtn').addEventListener('click', openTimeline);
@@ -9092,6 +9767,10 @@ document.addEventListener('keydown', e => {
   }
 
   if (e.key !== 'Escape') return;
+  if (combatOpen) { closeCombat(); return; }
+  if (calOpen) { closeCalendar(); return; }
+  if (document.getElementById('genBackdrop')?.classList.contains('open')) { closeGenerators(); return; }
+  if (document.getElementById('helpBackdrop').classList.contains('open')) { closeHelp(); return; }
   if (document.getElementById('charsheetBackdrop').classList.contains('open')) { closeCharSheet(); return; }
   if (pbOpen) { closePinboard(); return; }
   if (document.getElementById('graphBackdrop').classList.contains('open'))     { closeGraph();     return; }
@@ -10233,6 +10912,1702 @@ function renderCharList() {
 }
 
 /* ════════════════════════════════════════
+   HELP SYSTEM
+════════════════════════════════════════ */
+
+const HELP_SECTIONS_DM = [
+  { id:'overview',    label:'Getting Started',  group:'Basics' },
+  { id:'campaigns',  label:'Campaigns',         group:'Basics' },
+  { id:'entries',    label:'Creating Entries',  group:'Basics' },
+  { id:'categories', label:'Entry Categories',  group:'Basics' },
+  { id:'search',     label:'Search & Filter',   group:'Basics' },
+  { id:'roles',      label:'DM vs Player Mode', group:'Basics' },
+  { id:'characters', label:'Character Sheets',  group:'Tools'  },
+  { id:'questboard', label:'Quest Board',       group:'Tools'  },
+  { id:'timeline',   label:'Timeline',          group:'Tools'  },
+  { id:'graph',      label:'Relationship Graph',group:'Tools'  },
+  { id:'pinboard',   label:'Pinboard',          group:'Tools'  },
+  { id:'dashboard',  label:'Dashboard',         group:'Tools'  },
+  { id:'dice',       label:'Dice Roller',       group:'Tools'  },
+  { id:'capture',    label:'Quick Capture',     group:'Tools'  },
+  { id:'firebase',   label:'Cloud Sync',        group:'Data'   },
+  { id:'export',     label:'Export & Import',   group:'Data'   },
+  { id:'shortcuts',  label:'Keyboard Shortcuts',group:'Data'   },
+  { id:'approval',   label:'Player Requests',   group:'Players'},
+  { id:'reveal',     label:'Revealing Entries', group:'Players'},
+  { id:'pin',        label:'PIN Protection',    group:'Players'},
+];
+
+const HELP_SECTIONS_PLAYER = [
+  { id:'pl-overview',    label:'Getting Started',   group:'Basics'    },
+  { id:'pl-browse',      label:'Browsing Lore',     group:'Basics'    },
+  { id:'pl-sessions',    label:'Session Logs',      group:'Basics'    },
+  { id:'pl-characters',  label:'Character Sheets',  group:'Tools'     },
+  { id:'pl-notes',       label:'Personal Notes',    group:'Tools'     },
+  { id:'pl-requests',    label:'Requesting Changes',group:'Tools'     },
+  { id:'pl-dice',        label:'Dice Roller',       group:'Tools'     },
+  { id:'pl-shortcuts',   label:'Keyboard Shortcuts',group:'Reference' },
+];
+
+const HELP_CONTENT = {
+  /* ─── DM SECTIONS ─────────────────────────────────────────────── */
+
+  overview: `
+    <div class="help-section-title">⚔ Getting Started — DM Guide</div>
+    <div class="help-section-sub">Everything you need to begin building your world</div>
+    <div class="help-block">
+      <div class="help-block-title">First Steps</div>
+      <div class="help-tip"><strong>1.</strong> Open <strong>⚑ Campaigns</strong> in the header and create a Campaign ID — this is your world's namespace.</div>
+      <div class="help-tip"><strong>2.</strong> Add entries using <strong>+ New Entry</strong> or press <strong>N</strong> for Quick Capture.</div>
+      <div class="help-tip"><strong>3.</strong> Set a <strong>PIN</strong> (Campaigns → 🔒 Set PIN) before handing the device to players.</div>
+      <div class="help-tip"><strong>4.</strong> Optionally connect <strong>Firebase</strong> via the Sync button for real-time multi-device sync.</div>
+    </div>
+    <div class="help-block">
+      <div class="help-block-title">The Interface at a Glance</div>
+      <div class="help-row"><span class="help-key">Header</span><span class="help-desc">Campaign switcher, role switcher, sync, theme, and new entry button.</span></div>
+      <div class="help-row"><span class="help-key">Category Tabs</span><span class="help-desc">Filter entries by type — Characters, NPCs, Locations, Factions, Quests, Items, Lore, Sessions.</span></div>
+      <div class="help-row"><span class="help-key">Toolbar</span><span class="help-desc">Access Characters, Quest Board, Timeline, Graph, Pinboard, Dashboard, Select, and Templates.</span></div>
+      <div class="help-row"><span class="help-key">Cards Grid</span><span class="help-desc">All your entries. Click to view, hover for Edit/Delete. Sort by Recent, A–Z, or Oldest.</span></div>
+    </div>`,
+
+  campaigns: `
+    <div class="help-section-title">⚑ Campaigns</div>
+    <div class="help-section-sub">Organise multiple adventures in separate namespaces</div>
+    <div class="help-block">
+      <div class="help-block-title">Managing Campaigns</div>
+      <div class="help-row"><span class="help-key">Create</span><span class="help-desc">Enter a unique ID (e.g. <em>curse-of-strahd-2025</em>) and click Create. IDs must be lowercase, no spaces.</span></div>
+      <div class="help-row"><span class="help-key">Switch</span><span class="help-desc">Click Switch next to any campaign. PIN-gated to prevent players from switching.</span></div>
+      <div class="help-row"><span class="help-key">Rename</span><span class="help-desc">Click ✎ on a campaign row. If connected to Firebase, entries are migrated to the new collection name.</span></div>
+      <div class="help-row"><span class="help-key">Delete</span><span class="help-desc">Permanently removes the campaign and all its Firestore entries. PIN-gated.</span></div>
+    </div>
+    <div class="help-block">
+      <div class="help-block-title">Local vs Cloud</div>
+      <div class="help-tip">Without Firebase, each campaign is stored in <strong>localStorage</strong> — data stays on this device only. Connect Firebase to sync across devices.</div>
+      <div class="help-warn"><strong>Important:</strong> Switching campaigns without Firebase saves the current campaign locally before switching. Make sure to export backups regularly.</div>
+    </div>`,
+
+  entries: `
+    <div class="help-section-title">✦ Creating & Editing Entries</div>
+    <div class="help-section-sub">Your world's building blocks</div>
+    <div class="help-block">
+      <div class="help-block-title">Entry Form Fields</div>
+      <div class="help-row"><span class="help-key">Category</span><span class="help-desc">Sets the entry type and determines which dynamic fields appear below.</span></div>
+      <div class="help-row"><span class="help-key">Description</span><span class="help-desc">Visible to players when the entry is revealed. Write what they'd learn in the world.</span></div>
+      <div class="help-row"><span class="help-key">🔒 DM Secret Notes</span><span class="help-desc">Never shown to players. Use for true motives, plot hooks, hidden stats, or upcoming reveals.</span></div>
+      <div class="help-row"><span class="help-key">Linked Entries</span><span class="help-desc">Connect related entries. Links are bidirectional — both entries show each other.</span></div>
+      <div class="help-row"><span class="help-key">Tags</span><span class="help-desc">Comma-separated keywords for filtering. No # needed — e.g. <em>villain, underdark, urgent</em>.</span></div>
+      <div class="help-row"><span class="help-key">DM Only toggle</span><span class="help-desc">Hides the entry from Player View. Overridden per-entry with "Reveal to Players".</span></div>
+    </div>
+    <div class="help-block">
+      <div class="help-block-title">Field-Level DM Lock</div>
+      <div class="help-tip">On dynamic fields (Race, Status, etc.), click 🔓 to lock that specific field as DM-only. Players see the entry but not that field's value.</div>
+    </div>
+    <div class="help-block">
+      <div class="help-block-title">Changelog & History</div>
+      <div class="help-tip">Every save records a diff. Open any entry → ⟳ History to see who changed what and when. DMs can clear history per entry.</div>
+    </div>`,
+
+  categories: `
+    <div class="help-section-title">◈ Entry Categories</div>
+    <div class="help-section-sub">Each type has its own dynamic fields</div>
+    <div class="help-block">
+      <div class="help-block-title">Available Types</div>
+      <div class="help-chip-row">
+        <span class="help-chip" style="color:#e8a04a;border-color:#e8a04a40;background:#e8a04a0d">🧙 Characters</span>
+        <span class="help-chip" style="color:#d4784a;border-color:#d4784a40;background:#d4784a0d">⚔ NPCs</span>
+        <span class="help-chip" style="color:#4a91d9;border-color:#4a91d940;background:#4a91d90d">◎ Locations</span>
+        <span class="help-chip" style="color:#9d6fd9;border-color:#9d6fd940;background:#9d6fd90d">⚜ Factions</span>
+        <span class="help-chip" style="color:#d94a4a;border-color:#d94a4a40;background:#d94a4a0d">📜 Quests</span>
+        <span class="help-chip" style="color:#4abf78;border-color:#4abf7840;background:#4abf780d">◆ Items</span>
+        <span class="help-chip" style="color:#c9a74c;border-color:#c9a74c40;background:#c9a74c0d">✦ Lore</span>
+        <span class="help-chip" style="color:#7bb8d4;border-color:#7bb8d440;background:#7bb8d40d">📖 Sessions</span>
+      </div>
+      <div class="help-row"><span class="help-key">🧙 Characters</span><span class="help-desc">Player characters with full interactive sheets — ability scores, skills, HP, spells, equipment, traits.</span></div>
+      <div class="help-row"><span class="help-key">⚔ NPCs</span><span class="help-desc">Race, Class/Role, Last Known Location, Status (Alive/Dead/Hostile…).</span></div>
+      <div class="help-row"><span class="help-key">◎ Locations</span><span class="help-desc">Region, Type (City/Dungeon…), Population, Status (Safe/Dangerous/Cursed…).</span></div>
+      <div class="help-row"><span class="help-key">⚜ Factions</span><span class="help-desc">Alignment, Leader, Base of Operations, Primary Goal.</span></div>
+      <div class="help-row"><span class="help-key">📜 Quests</span><span class="help-desc">Quest Giver, Status (Active/Completed/Failed…), Reward, Difficulty.</span></div>
+      <div class="help-row"><span class="help-key">◆ Items</span><span class="help-desc">Item Type, Rarity, Attunement, Current Owner.</span></div>
+      <div class="help-row"><span class="help-key">✦ Lore</span><span class="help-desc">Era, Source, Reliability (Confirmed/Rumour/Legend…), Related entries.</span></div>
+      <div class="help-row"><span class="help-key">📖 Sessions</span><span class="help-desc">Session number, real date, location, outcome. Editable by both DM and players.</span></div>
+    </div>`,
+
+  search: `
+    <div class="help-section-title">⚲ Search & Filter</div>
+    <div class="help-section-sub">Find anything across your entire chronicle</div>
+    <div class="help-block">
+      <div class="help-block-title">Global Search</div>
+      <div class="help-tip">The search bar searches <strong>names, descriptions, tags, and all dynamic fields</strong> simultaneously. Results appear as a dropdown with snippets showing where the match was found.</div>
+      <div class="help-row"><span class="help-key">Esc</span><span class="help-desc">Clears search and closes the results panel.</span></div>
+    </div>
+    <div class="help-block">
+      <div class="help-block-title">Category Tabs & Sort</div>
+      <div class="help-row"><span class="help-key">Category Tabs</span><span class="help-desc">Click any tab to filter to that entry type. The count badge shows how many entries of that type exist.</span></div>
+      <div class="help-row"><span class="help-key">Recent / A–Z / Oldest</span><span class="help-desc">Sort controls in the top-right of the toolbar. Pinned entries always appear first.</span></div>
+      <div class="help-row"><span class="help-key">📌 Pin</span><span class="help-desc">Hover any card and click the pin icon to keep it at the top of the list.</span></div>
+    </div>`,
+
+  roles: `
+    <div class="help-section-title">⚔ DM vs 👁 Player Mode</div>
+    <div class="help-section-sub">Two views of the same chronicle</div>
+    <div class="help-block">
+      <div class="help-block-title">Switching Roles</div>
+      <div class="help-tip">Use the <strong>role switcher</strong> in the header. Switching <strong>to DM</strong> is PIN-gated — players cannot promote themselves.</div>
+      <div class="help-warn"><strong>Set a PIN first</strong> (Campaigns → 🔒 Set PIN) before showing the app to players. Without a PIN, anyone can switch to DM mode.</div>
+    </div>
+    <div class="help-block">
+      <div class="help-block-title">What Players See</div>
+      <div class="help-row"><span class="help-key">DM Only entries</span><span class="help-desc">Hidden entirely. Reveal them per-entry with the "👁 Reveal to Players" toggle in the view modal.</span></div>
+      <div class="help-row"><span class="help-key">DM Secret Notes</span><span class="help-desc">Never shown, even on revealed entries.</span></div>
+      <div class="help-row"><span class="help-key">Locked fields</span><span class="help-desc">Field-level DM locks hide individual values on otherwise visible entries.</span></div>
+      <div class="help-row"><span class="help-key">Sessions</span><span class="help-desc">Players can see, create, and edit session log entries.</span></div>
+    </div>`,
+
+  characters: `
+    <div class="help-section-title">🧙 Character Sheets</div>
+    <div class="help-section-sub">Full interactive D&D 5e character management</div>
+    <div class="help-block">
+      <div class="help-block-title">Opening a Sheet</div>
+      <div class="help-tip">Click <strong>🧙 Characters</strong> in the toolbar → select a character → <strong>⊡ Sheet</strong>. Or open any character entry and click <strong>⊡ Sheet</strong> in the footer.</div>
+    </div>
+    <div class="help-block">
+      <div class="help-block-title">Sheet Tabs</div>
+      <div class="help-row"><span class="help-key">Core</span><span class="help-desc">Ability scores, saving throw proficiencies, HP tracker with colour states, death saves, inspiration, passive perception.</span></div>
+      <div class="help-row"><span class="help-key">Skills</span><span class="help-desc">All 18 skills with proficiency/expertise dots. Bonuses calculate automatically from ability scores + proficiency bonus.</span></div>
+      <div class="help-row"><span class="help-key">Combat</span><span class="help-desc">AC, Initiative, Speed, attack list with bonus/damage/type, currency tracker (CP/SP/EP/GP/PP).</span></div>
+      <div class="help-row"><span class="help-key">Spells</span><span class="help-desc">Slot tracker per level (click pips to use/restore), full spell list. Only available for spellcasting classes.</span></div>
+      <div class="help-row"><span class="help-key">Equipment</span><span class="help-desc">Inventory with name, detail, quantity. Currency mirrored here.</span></div>
+      <div class="help-row"><span class="help-key">Traits</span><span class="help-desc">Personality, Ideals, Bonds, Flaws, Features & Traits text areas.</span></div>
+      <div class="help-row"><span class="help-key">Notes</span><span class="help-desc">Free-form adventure journal. All changes auto-save.</span></div>
+    </div>
+    <div class="help-block">
+      <div class="help-block-title">Proficiency Dots</div>
+      <div class="help-tip">Click any proficiency dot to cycle: <strong>none → proficient → expertise → none</strong>. Expertise doubles the proficiency bonus for that skill or save.</div>
+    </div>`,
+
+  questboard: `
+    <div class="help-section-title">▦ Quest Board</div>
+    <div class="help-section-sub">Kanban-style quest tracker</div>
+    <div class="help-block">
+      <div class="help-block-title">Using the Board</div>
+      <div class="help-tip">The Quest Board shows all Quest entries organised into columns by status: <strong>Not Started → Active → On Hold → Completed → Failed</strong>.</div>
+      <div class="help-row"><span class="help-key">Drag & Drop</span><span class="help-desc">Drag any quest card to a different column to update its status instantly.</span></div>
+      <div class="help-row"><span class="help-key">Click Card</span><span class="help-desc">Opens the full entry view for that quest.</span></div>
+    </div>
+    <div class="help-block">
+      <div class="help-block-title">Tips</div>
+      <div class="help-tip">Quest cards show the giver, difficulty, and tags. Change these in the entry editor. The board stays in sync with the main cards grid.</div>
+    </div>`,
+
+  timeline: `
+    <div class="help-section-title">⟳ Campaign Timeline</div>
+    <div class="help-section-sub">Your campaign's narrative arc at a glance</div>
+    <div class="help-block">
+      <div class="help-block-title">What Appears</div>
+      <div class="help-tip">The timeline shows <strong>Sessions, Quests, and NPCs</strong> in reverse chronological order. Use the filter buttons to narrow by type.</div>
+      <div class="help-row"><span class="help-key">Sessions</span><span class="help-desc">Sorted by session number descending. Shows outcome badge and linked entries.</span></div>
+      <div class="help-row"><span class="help-key">Quests & NPCs</span><span class="help-desc">Sorted by last-updated date. Status badge shown in colour.</span></div>
+      <div class="help-row"><span class="help-key">Click item</span><span class="help-desc">Closes the timeline and opens that entry's view modal.</span></div>
+    </div>`,
+
+  graph: `
+    <div class="help-section-title">◈ Relationship Graph</div>
+    <div class="help-section-sub">Force-directed visualisation of entry connections</div>
+    <div class="help-block">
+      <div class="help-block-title">Interactions</div>
+      <div class="help-row"><span class="help-key">Drag nodes</span><span class="help-desc">Pick up any node and place it anywhere. Physics resumes when released.</span></div>
+      <div class="help-row"><span class="help-key">Scroll</span><span class="help-desc">Zoom in and out. Range: 25%–400%.</span></div>
+      <div class="help-row"><span class="help-key">Pan</span><span class="help-desc">Drag the background to pan the viewport.</span></div>
+      <div class="help-row"><span class="help-key">Click node</span><span class="help-desc">Opens the entry's view modal.</span></div>
+    </div>
+    <div class="help-block">
+      <div class="help-block-title">Tips</div>
+      <div class="help-tip">Only entries that have at least one link appear in the graph. Add links via the <strong>Linked Entries</strong> field in the entry editor — links are bidirectional.</div>
+    </div>`,
+
+  pinboard: `
+    <div class="help-section-title">📌 Pinboard</div>
+    <div class="help-section-sub">Freeform spatial canvas for arc planning</div>
+    <div class="help-block">
+      <div class="help-block-title">Adding Entries</div>
+      <div class="help-tip">Open <strong>⊞ Entries</strong> sidebar → click any entry to place it on the canvas. Already-placed entries appear greyed out.</div>
+    </div>
+    <div class="help-block">
+      <div class="help-block-title">Controls</div>
+      <div class="help-row"><span class="help-key">Drag cards</span><span class="help-desc">Pick up any card and move it freely. Position is saved automatically per campaign.</span></div>
+      <div class="help-row"><span class="help-key">Scroll / ±</span><span class="help-desc">Zoom the canvas. Range: 15%–300%.</span></div>
+      <div class="help-row"><span class="help-key">Drag background</span><span class="help-desc">Pan around the infinite canvas.</span></div>
+      <div class="help-row"><span class="help-key">Double-click</span><span class="help-desc">Adds a colour-coded sticky note at the click position. Drag the bar to move it.</span></div>
+      <div class="help-row"><span class="help-key">⬡ Links</span><span class="help-desc">Toggle curved dashed lines between linked entries that are both on the board.</span></div>
+      <div class="help-row"><span class="help-key">↗ button</span><span class="help-desc">Opens the entry's view modal without leaving the pinboard.</span></div>
+    </div>`,
+
+  dashboard: `
+    <div class="help-section-title">⊟ Campaign Dashboard</div>
+    <div class="help-section-sub">Status overview across all your lore</div>
+    <div class="help-block">
+      <div class="help-block-title">Tabs</div>
+      <div class="help-row"><span class="help-key">Overview</span><span class="help-desc">Stat tiles (session count, NPC count, active quests, etc.), quest status progress bar, NPC roster health bar, latest session, pinned entries.</span></div>
+      <div class="help-row"><span class="help-key">Quests</span><span class="help-desc">All quests grouped by status with difficulty badges and reward info.</span></div>
+      <div class="help-row"><span class="help-key">NPCs</span><span class="help-desc">Full roster grouped by status. Race, role, and last known location shown inline.</span></div>
+      <div class="help-row"><span class="help-key">Factions</span><span class="help-desc">3×3 alignment grid with faction placement, plus detail cards for each faction.</span></div>
+      <div class="help-row"><span class="help-key">Locations</span><span class="help-desc">Locations grouped by status (Safe/Dangerous/Cursed…) with region and type.</span></div>
+    </div>
+    <div class="help-tip">Click any item in the Dashboard to jump directly to that entry's view modal.</div>`,
+
+  dice: `
+    <div class="help-section-title">🎲 Dice Roller</div>
+    <div class="help-section-sub">Built-in polyhedral dice for the table</div>
+    <div class="help-block">
+      <div class="help-block-title">Rolling Dice</div>
+      <div class="help-row"><span class="help-key">D key</span><span class="help-desc">Toggles the dice roller open/closed from anywhere.</span></div>
+      <div class="help-row"><span class="help-key">Die buttons</span><span class="help-desc">d4, d6, d8, d10, d12, d20, d100. Click to roll with current count and modifier.</span></div>
+      <div class="help-row"><span class="help-key">Mod field</span><span class="help-desc">Adds a fixed modifier to the total (e.g. +5 for proficiency).</span></div>
+      <div class="help-row"><span class="help-key">Count</span><span class="help-desc">Adjust with +/− to roll multiple dice at once (e.g. 3d6).</span></div>
+      <div class="help-row"><span class="help-key">✦ Custom</span><span class="help-desc">Enter any expression like <em>2d6+3</em> or <em>4d8-2</em>.</span></div>
+    </div>
+    <div class="help-block">
+      <div class="help-block-title">Special Results</div>
+      <div class="help-row"><span class="help-key">Natural 20</span><span class="help-desc">Highlighted in green. Natural 1 highlighted in red.</span></div>
+      <div class="help-row"><span class="help-key">📖 Log to Session</span><span class="help-desc">Appends the last 15 rolls to the most recent session log entry's description.</span></div>
+    </div>`,
+
+  capture: `
+    <div class="help-section-title">⚡ Quick Capture</div>
+    <div class="help-section-sub">Note something fast without losing the moment</div>
+    <div class="help-block">
+      <div class="help-block-title">Usage</div>
+      <div class="help-tip">Press <strong>N</strong> or click the ⚡ pill (bottom-right) to open Quick Capture. Only available in DM mode with an active campaign.</div>
+      <div class="help-row"><span class="help-key">Category</span><span class="help-desc">Choose what type of entry you're creating.</span></div>
+      <div class="help-row"><span class="help-key">Name</span><span class="help-desc">Required. Press Enter to save immediately.</span></div>
+      <div class="help-row"><span class="help-key">⊞ Full Editor</span><span class="help-desc">Saves the entry and immediately opens the full edit form for it.</span></div>
+    </div>
+    <div class="help-tip">Quick Capture entries default to <strong>DM Only</strong>. Remember to reveal them when ready.</div>`,
+
+  firebase: `
+    <div class="help-section-title">☁ Cloud Sync — Firebase</div>
+    <div class="help-section-sub">Real-time sync across all your devices</div>
+    <div class="help-block">
+      <div class="help-block-title">Setting Up</div>
+      <div class="help-row"><span class="help-key">1</span><span class="help-desc">Create a free Firebase project at <strong>console.firebase.google.com</strong>.</span></div>
+      <div class="help-row"><span class="help-key">2</span><span class="help-desc">Enable <strong>Cloud Firestore</strong> in the project (start in test mode).</span></div>
+      <div class="help-row"><span class="help-key">3</span><span class="help-desc">Copy the Firebase config from Project Settings → Your apps → Web app.</span></div>
+      <div class="help-row"><span class="help-key">4</span><span class="help-desc">Click <strong>Sync</strong> in the header, enter a Campaign ID and paste the config, then click Connect.</span></div>
+    </div>
+    <div class="help-block">
+      <div class="help-block-title">Connection Profiles</div>
+      <div class="help-tip">Export an AES-encrypted <strong>.lkconn</strong> file to share your Firebase connection with other devices. Set a passphrase — the file is unreadable without it. Import and export are both PIN-gated.</div>
+    </div>
+    <div class="help-block">
+      <div class="help-block-title">Offline Mode</div>
+      <div class="help-tip">If connectivity drops, writes are queued locally. The amber indicator shows pending writes. When back online, click it to flush or it flushes automatically.</div>
+    </div>`,
+
+  export: `
+    <div class="help-section-title">↓ Export & ↑ Import</div>
+    <div class="help-section-sub">Back up and restore your campaign data</div>
+    <div class="help-block">
+      <div class="help-block-title">Export</div>
+      <div class="help-row"><span class="help-key">JSON</span><span class="help-desc">Full-fidelity export including images (base64), sheet data, changelog, and all fields. Best for backups.</span></div>
+      <div class="help-row"><span class="help-key">CSV</span><span class="help-desc">Spreadsheet-compatible. Images are excluded. Use for sharing data with other tools or reviewing in Excel.</span></div>
+    </div>
+    <div class="help-block">
+      <div class="help-block-title">Import</div>
+      <div class="help-tip">Existing entries (matched by ID) are <strong>skipped</strong> — import never overwrites. Import JSON or CSV files from a previous export. Both are PIN-gated.</div>
+    </div>
+    <div class="help-block">
+      <div class="help-block-title">Bulk Export</div>
+      <div class="help-tip">Use <strong>☐ Select</strong> in the toolbar to select specific cards, then <strong>↓ Export Selected</strong> to export only those entries as JSON.</div>
+    </div>`,
+
+  shortcuts: `
+    <div class="help-section-title">⌨ Keyboard Shortcuts</div>
+    <div class="help-section-sub">DM mode shortcuts</div>
+    <div class="help-block">
+      <div class="help-block-title">Global Shortcuts</div>
+      <div class="help-row"><span class="help-key">N</span><span class="help-desc">Open / close Quick Capture (DM only, requires active campaign).</span></div>
+      <div class="help-row"><span class="help-key">D</span><span class="help-desc">Open / close Dice Roller.</span></div>
+      <div class="help-row"><span class="help-key">P</span><span class="help-desc">Open / close Pinboard.</span></div>
+      <div class="help-row"><span class="help-key">C</span><span class="help-desc">Open Characters list.</span></div>
+      <div class="help-row"><span class="help-key">Esc</span><span class="help-desc">Close the topmost open panel or modal. Clears search if active.</span></div>
+    </div>
+    <div class="help-block">
+      <div class="help-block-title">In Modals</div>
+      <div class="help-row"><span class="help-key">Enter</span><span class="help-desc">In the Name field of the entry form — saves the entry.</span></div>
+      <div class="help-row"><span class="help-key">Ctrl+Enter</span><span class="help-desc">In comment composer — posts the comment.</span></div>
+    </div>`,
+
+  approval: `
+    <div class="help-section-title">✎ Player Change Requests</div>
+    <div class="help-section-sub">Reviewing what players want to update</div>
+    <div class="help-block">
+      <div class="help-block-title">The Approval Flow</div>
+      <div class="help-tip">When a player proposes a change to an entry field, it appears as a <strong>pending request</strong>. You see a badge on the DM button and on the relevant cards.</div>
+      <div class="help-row"><span class="help-key">✎ Requests</span><span class="help-desc">Header button shows total pending requests. Click to open the Approval Queue.</span></div>
+      <div class="help-row"><span class="help-key">✓ Approve</span><span class="help-desc">Applies the player's proposed value to the entry field immediately.</span></div>
+      <div class="help-row"><span class="help-key">✗ Reject</span><span class="help-desc">Discards the request without changing the entry.</span></div>
+      <div class="help-row"><span class="help-key">Approve All</span><span class="help-desc">Bulk-applies all pending changes across all entries.</span></div>
+    </div>`,
+
+  reveal: `
+    <div class="help-section-title">👁 Revealing Entries to Players</div>
+    <div class="help-section-sub">Control what players discover and when</div>
+    <div class="help-block">
+      <div class="help-block-title">Entry-Level Reveal</div>
+      <div class="help-tip">Open any entry → <strong>"👁 Reveal to Players"</strong> toggle in the view modal. This overrides the DM Only setting — players can see the entry even if DM Only is still checked.</div>
+    </div>
+    <div class="help-block">
+      <div class="help-block-title">Field-Level Locks</div>
+      <div class="help-tip">Even on revealed entries, individual fields can stay hidden. Lock fields with 🔒 in the entry editor. Unlock with 🔓 when the players learn that information.</div>
+    </div>
+    <div class="help-tip"><strong>DM Secret Notes</strong> are <em>never</em> shown to players regardless of reveal status — they are truly DM-private.</div>`,
+
+  pin: `
+    <div class="help-section-title">🔒 PIN Protection</div>
+    <div class="help-section-sub">Keep DM mode secure at the table</div>
+    <div class="help-block">
+      <div class="help-block-title">Setting a PIN</div>
+      <div class="help-tip">Campaigns → <strong>🔒 Set PIN</strong>. Enter a 4-digit PIN twice to confirm. The PIN gates: switching to DM mode, campaign create/switch/delete, export, import, and reset.</div>
+    </div>
+    <div class="help-block">
+      <div class="help-block-title">What Requires PIN</div>
+      <div class="help-row"><span class="help-key">DM Mode</span><span class="help-desc">Players cannot switch back to DM without the PIN.</span></div>
+      <div class="help-row"><span class="help-key">Campaign actions</span><span class="help-desc">Create, switch, rename, delete campaigns.</span></div>
+      <div class="help-row"><span class="help-key">Data</span><span class="help-desc">Export, import, and reset all local data.</span></div>
+      <div class="help-row"><span class="help-key">Connection profiles</span><span class="help-desc">Export and import Firebase .lkconn files.</span></div>
+    </div>
+    <div class="help-warn"><strong>No recovery.</strong> If you forget your PIN, you must reset all local data. Firebase data is not affected by a reset.</div>`,
+
+  /* ─── PLAYER SECTIONS ──────────────────────────────────────────── */
+
+  'pl-overview': `
+    <div class="help-section-title">👁 Getting Started — Player Guide</div>
+    <div class="help-section-sub">Your guide to the campaign chronicle</div>
+    <div class="help-block">
+      <div class="help-block-title">What You Can See</div>
+      <div class="help-tip">The DM controls what's visible. Entries marked <strong>DM Only</strong> are hidden until the DM reveals them. You'll discover more of the chronicle as the campaign progresses.</div>
+    </div>
+    <div class="help-block">
+      <div class="help-block-title">The Interface</div>
+      <div class="help-row"><span class="help-key">Category Tabs</span><span class="help-desc">Browse by type — Characters, NPCs, Locations, Factions, Quests, Items, Lore, Sessions.</span></div>
+      <div class="help-row"><span class="help-key">Cards</span><span class="help-desc">Click any card to read the full entry. Hover to see available actions.</span></div>
+      <div class="help-row"><span class="help-key">Search</span><span class="help-desc">Search by name, description, tags, or any field value across all visible entries.</span></div>
+    </div>
+    <div class="help-block">
+      <div class="help-block-title">Your Capabilities</div>
+      <div class="help-chip-row">
+        <span class="help-chip" style="color:#4abf78;border-color:#4abf7840;background:#4abf780d">✓ View revealed lore</span>
+        <span class="help-chip" style="color:#4abf78;border-color:#4abf7840;background:#4abf780d">✓ Write personal notes</span>
+        <span class="help-chip" style="color:#4abf78;border-color:#4abf7840;background:#4abf780d">✓ Edit sessions</span>
+        <span class="help-chip" style="color:#4abf78;border-color:#4abf7840;background:#4abf780d">✓ Request changes</span>
+        <span class="help-chip" style="color:#4abf78;border-color:#4abf7840;background:#4abf780d">✓ Roll dice</span>
+        <span class="help-chip" style="color:#4abf78;border-color:#4abf7840;background:#4abf780d">✓ View character sheets</span>
+        <span class="help-chip" style="color:#d45a5a;border-color:#d45a5a40;background:#d45a5a0d">✗ DM-only entries</span>
+        <span class="help-chip" style="color:#d45a5a;border-color:#d45a5a40;background:#d45a5a0d">✗ Edit non-session entries</span>
+      </div>
+    </div>`,
+
+  'pl-browse': `
+    <div class="help-section-title">📖 Browsing the Lore</div>
+    <div class="help-section-sub">Navigating the chronicle</div>
+    <div class="help-block">
+      <div class="help-block-title">Finding Entries</div>
+      <div class="help-row"><span class="help-key">Category tabs</span><span class="help-desc">Filter the view to a single entry type. The badge shows how many are visible to you.</span></div>
+      <div class="help-row"><span class="help-key">Search bar</span><span class="help-desc">Type to search across all visible entries. Results drop down with highlighted snippets.</span></div>
+      <div class="help-row"><span class="help-key">Sort</span><span class="help-desc">Recent (last updated), A–Z, or Oldest. Pinned entries always appear first.</span></div>
+    </div>
+    <div class="help-block">
+      <div class="help-block-title">Reading Entries</div>
+      <div class="help-tip">Click any card to open the full entry view. You'll see the description, any revealed fields, linked entries, tags, and your personal notes area.</div>
+      <div class="help-row"><span class="help-key">⟳ History</span><span class="help-desc">See what has changed in this entry over time — useful for tracking how your knowledge has evolved.</span></div>
+      <div class="help-row"><span class="help-key">◈ Graph</span><span class="help-desc">Opens the relationship graph centred on this entry, showing its connections to other lore.</span></div>
+    </div>`,
+
+  'pl-sessions': `
+    <div class="help-section-title">📖 Session Logs</div>
+    <div class="help-section-sub">Collaborative chronicle of your adventures</div>
+    <div class="help-block">
+      <div class="help-block-title">Creating a Session</div>
+      <div class="help-tip">Click <strong>+ New Session</strong> in the header (only option available to you). Fill in the session number, date, starting location, and outcome. Sessions are visible to everyone.</div>
+    </div>
+    <div class="help-block">
+      <div class="help-block-title">Editing Sessions</div>
+      <div class="help-tip">Both you and the DM can edit any session log. Hover a session card and click <strong>Edit</strong>, or open the entry and click <strong>Edit Session</strong>.</div>
+    </div>
+    <div class="help-block">
+      <div class="help-block-title">Session Fields</div>
+      <div class="help-row"><span class="help-key">Session #</span><span class="help-desc">The session number (e.g. 12). Used for ordering in the Timeline.</span></div>
+      <div class="help-row"><span class="help-key">Real Date</span><span class="help-desc">The actual date you played (e.g. 2025-06-14).</span></div>
+      <div class="help-row"><span class="help-key">Location</span><span class="help-desc">Where the party started the session.</span></div>
+      <div class="help-row"><span class="help-key">Outcome</span><span class="help-desc">Victory, Defeat, Retreat, Neutral, or Cliffhanger.</span></div>
+      <div class="help-row"><span class="help-key">Description</span><span class="help-desc">The session recap. Write what happened — the DM can read this too.</span></div>
+    </div>`,
+
+  'pl-characters': `
+    <div class="help-section-title">🧙 Character Sheets</div>
+    <div class="help-section-sub">Manage your character's stats and story</div>
+    <div class="help-block">
+      <div class="help-block-title">Opening Your Sheet</div>
+      <div class="help-tip">Click <strong>🧙 Characters</strong> in the toolbar, then <strong>⊡ Sheet</strong> next to your character. Or press <strong>C</strong>.</div>
+    </div>
+    <div class="help-block">
+      <div class="help-block-title">What You Can Update</div>
+      <div class="help-row"><span class="help-key">Ability Scores</span><span class="help-desc">Edit your STR/DEX/CON/INT/WIS/CHA — modifiers update instantly.</span></div>
+      <div class="help-row"><span class="help-key">Proficiencies</span><span class="help-desc">Click the dot next to any skill or saving throw to mark proficient (●) or expert (◉).</span></div>
+      <div class="help-row"><span class="help-key">HP</span><span class="help-desc">Track Max, Current, and Temp HP. The box turns amber (≤50%) or red (≤25%) automatically.</span></div>
+      <div class="help-row"><span class="help-key">Death Saves</span><span class="help-desc">Click the dots to track successes (green) and failures (red). Reset after stabilising.</span></div>
+      <div class="help-row"><span class="help-key">Spells</span><span class="help-desc">Set total slots per level, click pips to mark used. Add spells to your list.</span></div>
+      <div class="help-row"><span class="help-key">Equipment</span><span class="help-desc">Add and remove items. Track currency.</span></div>
+      <div class="help-row"><span class="help-key">Traits</span><span class="help-desc">Personality, Ideals, Bonds, Flaws. Write your character's soul here.</span></div>
+    </div>
+    <div class="help-tip">Everything auto-saves within a second of any change. No save button needed.</div>`,
+
+  'pl-notes': `
+    <div class="help-section-title">✎ Personal Notes</div>
+    <div class="help-section-sub">Your private observations on any entry</div>
+    <div class="help-block">
+      <div class="help-block-title">Where Notes Live</div>
+      <div class="help-tip">Open any entry → scroll to <strong>My Notes</strong> at the bottom. Notes are visible to you (and readable by the DM), but separate from the official entry description.</div>
+    </div>
+    <div class="help-block">
+      <div class="help-block-title">Auto-Save</div>
+      <div class="help-tip">Notes save automatically 800ms after you stop typing. You'll see "✓ Saved" briefly confirming the save.</div>
+    </div>
+    <div class="help-block">
+      <div class="help-block-title">Ideas for What to Write</div>
+      <div class="help-row"><span class="help-key">NPCs</span><span class="help-desc">First impressions, what you trust or distrust, gifts received, grudges owed.</span></div>
+      <div class="help-row"><span class="help-key">Locations</span><span class="help-desc">Interesting details noticed, secret passages found, dangers marked.</span></div>
+      <div class="help-row"><span class="help-key">Quests</span><span class="help-desc">Your character's personal motivation, theories on the solution, leads to follow.</span></div>
+      <div class="help-row"><span class="help-key">Lore</span><span class="help-desc">What your character thinks about this information — scepticism, connections made.</span></div>
+    </div>`,
+
+  'pl-requests': `
+    <div class="help-section-title">✎ Requesting Changes</div>
+    <div class="help-section-sub">Propose corrections or updates to the DM</div>
+    <div class="help-block">
+      <div class="help-block-title">How It Works</div>
+      <div class="help-tip">On most entries, hover the card and click <strong>Notes / Request Changes</strong>. Fill in any field you'd like updated. Empty fields are ignored. Your request goes to the DM for review — they approve or reject each change.</div>
+    </div>
+    <div class="help-block">
+      <div class="help-block-title">Good Uses</div>
+      <div class="help-row"><span class="help-key">NPC Status</span><span class="help-desc">Notify the DM that an NPC was killed or captured during the session.</span></div>
+      <div class="help-row"><span class="help-key">Location Status</span><span class="help-desc">Mark a location as Destroyed or Dangerous after events in the game.</span></div>
+      <div class="help-row"><span class="help-key">Item Owner</span><span class="help-desc">Update who currently holds an item after it changed hands.</span></div>
+      <div class="help-row"><span class="help-key">Quest Status</span><span class="help-desc">Propose marking a quest Completed or Failed.</span></div>
+    </div>
+    <div class="help-tip">The DM sees a badge counter on their DM button for pending requests. Changes only apply after DM approval.</div>`,
+
+  'pl-dice': `
+    <div class="help-section-title">🎲 Dice Roller</div>
+    <div class="help-section-sub">Roll dice without leaving the app</div>
+    <div class="help-block">
+      <div class="help-block-title">How to Roll</div>
+      <div class="help-row"><span class="help-key">D key</span><span class="help-desc">Press D anywhere to toggle the dice roller open or closed.</span></div>
+      <div class="help-row"><span class="help-key">Die buttons</span><span class="help-desc">Click d4, d6, d8, d10, d12, d20, or d100 to roll immediately.</span></div>
+      <div class="help-row"><span class="help-key">Mod</span><span class="help-desc">Set a modifier to add (or subtract) from the result — e.g. +3 for your ability modifier.</span></div>
+      <div class="help-row"><span class="help-key">Count +/−</span><span class="help-desc">Roll multiple dice at once — e.g. 2 × d6 for a sneak attack.</span></div>
+      <div class="help-row"><span class="help-key">✦ Custom</span><span class="help-desc">Type any expression like <em>3d8+5</em> or <em>d20-2</em>.</span></div>
+    </div>
+    <div class="help-block">
+      <div class="help-block-title">History</div>
+      <div class="help-tip">The last 15 rolls are shown below the result. Click <strong>📖 Log to Session</strong> to append them to the most recent session log — great for keeping a record of important rolls.</div>
+    </div>`,
+
+  'pl-shortcuts': `
+    <div class="help-section-title">⌨ Keyboard Shortcuts</div>
+    <div class="help-section-sub">Player mode shortcuts</div>
+    <div class="help-block">
+      <div class="help-block-title">Global</div>
+      <div class="help-row"><span class="help-key">D</span><span class="help-desc">Open / close Dice Roller.</span></div>
+      <div class="help-row"><span class="help-key">P</span><span class="help-desc">Open / close Pinboard.</span></div>
+      <div class="help-row"><span class="help-key">C</span><span class="help-desc">Open Characters list.</span></div>
+      <div class="help-row"><span class="help-key">Esc</span><span class="help-desc">Close the topmost open modal or panel. Clears search if active.</span></div>
+    </div>
+    <div class="help-block">
+      <div class="help-block-title">In Text Areas</div>
+      <div class="help-row"><span class="help-key">Ctrl + Enter</span><span class="help-desc">Post a comment in any entry's comments section.</span></div>
+    </div>`,
+};
+
+let helpActiveSection = null;
+
+function openHelp() {
+  const isDM      = state.role === 'dm';
+  const sections  = isDM ? HELP_SECTIONS_DM : HELP_SECTIONS_PLAYER;
+  const badge     = document.getElementById('helpRoleBadge');
+  badge.textContent = isDM ? '⚔ DM Guide' : '👁 Player Guide';
+  badge.style.cssText = isDM
+    ? 'color:#d45a5a;background:rgba(212,90,90,0.1);border:1px solid rgba(212,90,90,0.3)'
+    : 'color:#4a91d9;background:rgba(74,145,217,0.1);border:1px solid rgba(74,145,217,0.3)';
+
+  helpActiveSection = sections[0].id;
+  renderHelpNav(sections);
+  renderHelpContent(helpActiveSection);
+
+  document.getElementById('helpBackdrop').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeHelp() {
+  document.getElementById('helpBackdrop').classList.remove('open');
+  const stillOpen = document.querySelector(
+    '.backdrop.open,.kanban-backdrop.open,.timeline-backdrop.open,' +
+    '.dashboard-backdrop.open,.graph-backdrop.open,.pinboard-backdrop.open'
+  );
+  if (!stillOpen) document.body.style.overflow = '';
+}
+
+function renderHelpNav(sections) {
+  const nav = document.getElementById('helpNav');
+  let currentGroup = null;
+  nav.innerHTML = sections.map(s => {
+    let html = '';
+    if (s.group !== currentGroup) {
+      currentGroup = s.group;
+      html += `<div class="help-nav-section">${esc(s.group)}</div>`;
+    }
+    html += `<button class="help-nav-item ${s.id === helpActiveSection ? 'active' : ''}"
+      data-help-id="${esc(s.id)}">${esc(s.label)}</button>`;
+    return html;
+  }).join('');
+
+  nav.querySelectorAll('.help-nav-item').forEach(btn => {
+    btn.addEventListener('click', () => {
+      helpActiveSection = btn.dataset.helpId;
+      nav.querySelectorAll('.help-nav-item').forEach(b => b.classList.toggle('active', b === btn));
+      renderHelpContent(helpActiveSection);
+    });
+  });
+}
+
+function renderHelpContent(id) {
+  const content = document.getElementById('helpContent');
+  content.innerHTML = HELP_CONTENT[id] || `<div style="color:var(--text-faint);font-style:italic;padding:2rem">Section not found.</div>`;
+  content.scrollTop = 0;
+}
+
+/* ════════════════════════════════════════
+   STAGE 1 — MARKDOWN RENDERER
+════════════════════════════════════════ */
+
+function renderMd(text) {
+  if (!text) return '';
+  let html = esc(text);
+  // Headings
+  html = html.replace(/^### (.+)$/gm, '<h3>$1</h3>');
+  html = html.replace(/^## (.+)$/gm,  '<h2>$1</h2>');
+  html = html.replace(/^# (.+)$/gm,   '<h1>$1</h1>');
+  // Bold / italic
+  html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+  html = html.replace(/\*(.+?)\*/g,     '<em>$1</em>');
+  // Code
+  html = html.replace(/`(.+?)`/g, '<code>$1</code>');
+  // Blockquote
+  html = html.replace(/^&gt; (.+)$/gm, '<blockquote>$1</blockquote>');
+  // HR
+  html = html.replace(/^---$/gm, '<hr>');
+  // Unordered list
+  html = html.replace(/((?:^- .+\n?)+)/gm, m =>
+    '<ul>' + m.replace(/^- (.+)$/gm, '<li>$1</li>') + '</ul>');
+  // Ordered list
+  html = html.replace(/((?:^\d+\. .+\n?)+)/gm, m =>
+    '<ol>' + m.replace(/^\d+\. (.+)$/gm, '<li>$1</li>') + '</ol>');
+  // Paragraphs — split by double newline
+  html = html.split(/\n{2,}/).map(para => {
+    const p = para.trim();
+    if (!p) return '';
+    if (/^<(h[123]|ul|ol|blockquote|hr)/.test(p)) return p;
+    return `<p>${p.replace(/\n/g, '<br>')}</p>`;
+  }).join('');
+  return html;
+}
+
+function initDescEditor() {
+  const editBtn    = document.getElementById('descModeEdit');
+  const previewBtn = document.getElementById('descModePreview');
+  const textarea   = document.getElementById('fDesc');
+  const preview    = document.getElementById('descPreview');
+  if (!editBtn || !previewBtn) return;
+
+  editBtn.addEventListener('click', () => {
+    textarea.style.display = ''; preview.style.display = 'none';
+    editBtn.classList.add('active'); previewBtn.classList.remove('active');
+  });
+  previewBtn.addEventListener('click', () => {
+    preview.innerHTML = renderMd(textarea.value) || '<span style="color:var(--text-faint);font-style:italic">Nothing to preview yet.</span>';
+    textarea.style.display = 'none'; preview.style.display = '';
+    previewBtn.classList.add('active'); editBtn.classList.remove('active');
+  });
+
+  // Toolbar buttons
+  document.getElementById('descToolbar')?.querySelectorAll('.md-tool-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const wrap  = btn.dataset.md;
+      const line  = btn.dataset.mdLine;
+      const start = textarea.selectionStart;
+      const end   = textarea.selectionEnd;
+      const val   = textarea.value;
+      let newVal, newCursor;
+      if (wrap) {
+        const sel = val.slice(start, end) || 'text';
+        newVal = val.slice(0, start) + wrap + sel + wrap + val.slice(end);
+        newCursor = start + wrap.length + sel.length + wrap.length;
+      } else if (line) {
+        const lineStart = val.lastIndexOf('\n', start - 1) + 1;
+        newVal = val.slice(0, lineStart) + line + val.slice(lineStart);
+        newCursor = start + line.length;
+      }
+      textarea.value = newVal;
+      textarea.focus();
+      textarea.setSelectionRange(newCursor, newCursor);
+    });
+  });
+}
+
+/* ════════════════════════════════════════
+   STAGE 1 — DUPLICATE ENTRY
+════════════════════════════════════════ */
+
+function duplicateEntry(id) {
+  const entry = state.entries.find(e => e.id === id);
+  if (!entry) return;
+  const now   = Date.now();
+  const dupe  = JSON.parse(JSON.stringify(entry)); // deep clone
+  dupe.id         = uid();
+  dupe.name       = entry.name + ' (Copy)';
+  dupe.createdAt  = now;
+  dupe.updatedAt  = now;
+  dupe.pinned     = false;
+  dupe.changelog  = [{ ts: now, created: true, author: state.role, changes: [{ label:'Created', old:'', new: dupe.name }] }];
+  dupe.pendingChanges = [];
+  dupe.comments   = [];
+  state.entries.unshift(dupe);
+  fsSet(dupe);
+  saveLocal();
+  render();
+  openInlineNotice(`✓ Duplicated "${entry.name}"`);
+}
+
+/* ════════════════════════════════════════
+   STAGE 1 — MERGE ENTRIES
+════════════════════════════════════════ */
+
+let mergeBaseId   = null;
+let mergeTargetId = null;
+
+function openMergeModal(baseId) {
+  const base = state.entries.find(e => e.id === baseId);
+  if (!base) return;
+  mergeBaseId   = baseId;
+  mergeTargetId = null;
+
+  document.getElementById('mergeBaseEntry').textContent =
+    `${(CATEGORIES[base.category]||CATEGORIES.lore).icon} ${base.name}`;
+  document.getElementById('mergeSearchInput').value = '';
+  document.getElementById('mergeConfirmMergeBtn').disabled = true;
+  document.getElementById('mergeConfirmMergeBtn').style.opacity = '0.4';
+  document.getElementById('mergeConfirmMergeBtn').style.cursor  = 'not-allowed';
+  renderMergeList('');
+  openModal('mergeEntryBackdrop');
+  setTimeout(() => document.getElementById('mergeSearchInput').focus(), 150);
+}
+
+function renderMergeList(query) {
+  const list = document.getElementById('mergeEntryList');
+  const q    = query.toLowerCase();
+  const candidates = state.entries.filter(e => {
+    if (e.id === mergeBaseId) return false;
+    if (q && !(e.name||'').toLowerCase().includes(q)) return false;
+    return true;
+  }).slice(0, 20);
+
+  if (!candidates.length) {
+    list.innerHTML = `<div style="font-size:13px;color:var(--text-faint);font-style:italic;padding:0.5rem 0">No entries found.</div>`;
+    return;
+  }
+
+  list.innerHTML = candidates.map(e => {
+    const cat = CATEGORIES[e.category] || CATEGORIES.lore;
+    const isSel = e.id === mergeTargetId;
+    return `<div class="merge-entry-row ${isSel ? 'selected' : ''}" data-merge-id="${esc(e.id)}">
+      <span style="color:${cat.color}">${cat.icon}</span>
+      <span style="font-family:'Cinzel',serif;font-size:11.5px;font-weight:600;color:var(--text);flex:1">${esc(e.name)}</span>
+      <span style="font-size:11px;color:var(--text-faint)">${cat.label}</span>
+      ${isSel ? '<span style="color:var(--gold);font-size:11px">✓</span>' : ''}
+    </div>`;
+  }).join('');
+
+  list.querySelectorAll('.merge-entry-row').forEach(row => {
+    row.addEventListener('click', () => {
+      mergeTargetId = row.dataset.mergeId;
+      const btn = document.getElementById('mergeConfirmMergeBtn');
+      btn.disabled = false; btn.style.opacity = ''; btn.style.cursor = '';
+      renderMergeList(document.getElementById('mergeSearchInput').value);
+    });
+  });
+}
+
+function doMerge() {
+  const base   = state.entries.find(e => e.id === mergeBaseId);
+  const target = state.entries.find(e => e.id === mergeTargetId);
+  if (!base || !target) return;
+
+  // Combine tags, links, comments, changelog
+  const mergedTags    = [...new Set([...(base.tags||[]), ...(target.tags||[])])];
+  const mergedLinks   = [...new Set([...(base.links||[]), ...(target.links||[])].filter(id => id !== mergeBaseId && id !== mergeTargetId))];
+  const mergedComments = [...(base.comments||[]), ...(target.comments||[])];
+  const now = Date.now();
+
+  base.tags      = mergedTags;
+  base.links     = mergedLinks;
+  base.comments  = mergedComments;
+  base.updatedAt = now;
+  base.changelog = [
+    { ts: now, author: state.role, changes: [{ label:'Merged', old: '', new: `Merged with: ${target.name}` }] },
+    ...(base.changelog||[])
+  ];
+
+  // Reroute any entries that linked to target → now link to base
+  state.entries.forEach(e => {
+    if ((e.links||[]).includes(mergeTargetId)) {
+      e.links = [...new Set(e.links.map(l => l === mergeTargetId ? mergeBaseId : l))];
+      fsSet(e);
+    }
+  });
+
+  fsSet(base);
+  state.entries = state.entries.filter(e => e.id !== mergeTargetId);
+  fsDelete(mergeTargetId);
+  saveLocal();
+
+  closeModal('mergeEntryBackdrop');
+  render();
+  openInlineNotice(`✓ Merged "${target.name}" into "${base.name}"`);
+}
+
+/* ════════════════════════════════════════
+   STAGE 1 — RANDOM GENERATORS
+════════════════════════════════════════ */
+
+const GEN_DATA = {
+  npc: {
+    label: 'NPC Names',
+    options: ['Human','Elf','Dwarf','Halfling','Tiefling','Half-Orc','Gnome','Dragonborn'],
+    generate(opt) {
+      const H = { first:['Aldric','Mira','Theron','Syla','Cael','Nessa','Dorin','Fynn','Lira','Bram','Vesper','Orin','Rhea','Gareth','Elara','Tomas','Seren','Hadwin','Celeste','Rufus'], last:['Ashford','Blackwood','Crane','Draven','Emberly','Frost','Galewood','Haverlock','Ironsides','Jewel','Kestrel','Lorne','Marsh','Nighthollow','Osric','Pale','Quellyn','Ravenmoor','Stonefield','Thorn'] };
+      const E = { first:['Aelindra','Caladrel','Eiravel','Faelyn','Galanodel','Immeral','Leshanna','Miriel','Quarion','Riardon','Soveliss','Thamior','Varis','Xanaphia','Zylvara'], last:["Amastacia","Eathalena","Galanodel","Holimion","Ilphelkiir","Liadon","Meliamne","Naïlo","Siannodel","Xiloscient"] };
+      const D = { first:['Adrik','Baern','Darrak','Eberk','Fargrim','Gardain','Harbek','Kildrak','Morgran','Orsik','Rangrim','Thoradin','Tordek','Veit','Bruenor'], last:['Balderk','Dankil','Gorunn','Holderhek','Loderr','Lutgehr','Rumnaheim','Strakeln','Torunn','Ungart'] };
+      const tables = { Human:H, Elf:E, Dwarf:D, Halfling:H, Tiefling:H, 'Half-Orc':H, Gnome:D, Dragonborn:H };
+      const t   = tables[opt] || H;
+      const fn  = t.first[Math.floor(Math.random()*t.first.length)];
+      const ln  = t.last[Math.floor(Math.random()*t.last.length)];
+      const titles = ['','','','Captain ','Lady ','Lord ','Elder ','Arcane ','Ser ','Brother '];
+      const title  = titles[Math.floor(Math.random()*titles.length)];
+      return { main: title + fn + ' ' + ln, sub: opt };
+    }
+  },
+  place: {
+    label: 'Place Names',
+    options: ['Town','Village','City','Dungeon','Forest','Mountain','Sea','Desert'],
+    generate(opt) {
+      const prefixes = { Town:['Ashton','Briarwood','Crestfall','Dunmere','Embervale','Frostwick','Grimholt','Havenmoor','Irondale','Kettlebrook'], Village:['Millhaven','Nettleford','Oakshire','Pinewhistle','Quailmere','Roseholt','Saltwick','Thistledown','Ullford','Willowmere'], City:['Argentum','Bazaar of the Veils','Crossroads Keep','Duskspire','Emerald Citadel','Forgehaven','Goldreach','Hightower','Iron Bastion','Jewel of the North'], Dungeon:["Tomb of the ","Vault of ","Lair of the ","The Sunken ","Catacombs of ","Ruins of ","The Forsaken ","Caverns of "], Forest:['Ashwood','Blackvine Thicket','Copperleaf Forest','Duskwood','Eldergrove','Feywald','Grimfern','Haunted Pine Barrens'], Mountain:['Ashpeak','Boulderback Ridge','Cindercrags','Dreadhorn','Embercrest','Frostfang','Giantspine','Hammerfall'], Sea:['Azure Deep','Brinewater Gulf','Crimson Shallows','Duskwave Bay','Endless Reach','Fogmere','Ghostwater Strait','Howling Maw'], Desert:['Ashsand Wastes','Blazing Expanse','Cinderflat','Dustfall Plains','Ember Sea','Flamerift','Gilded Dune','Heatscar'] };
+      const suffixes = { Dungeon:['the Ancient','the Damned','Shadows','the Lich','the Forgotten','Echoes','Despair','the Deep'] };
+      const list = prefixes[opt] || prefixes.Town;
+      let name = list[Math.floor(Math.random()*list.length)];
+      if (opt === 'Dungeon') name += (suffixes.Dungeon[Math.floor(Math.random()*suffixes.Dungeon.length)]);
+      return { main: name, sub: opt };
+    }
+  },
+  tavern: {
+    label: 'Tavern Names',
+    options: ['Cozy','Rough','Fancy','Nautical','Elven','Dwarven'],
+    generate(opt) {
+      const adj = { Cozy:['Sleepy','Warm','Homely','Gentle','Quiet'], Rough:['Broken','Bloody','Snarling','Crooked','Rusted'], Fancy:['Golden','Silver','Gilded','Velvet','Sapphire'], Nautical:['Salty','Drifting','Anchor','Harbour','Tideworn'], Elven:['Moonlit','Starweave','Silvered','Twilight','Whispering'], Dwarven:['Hammered','Ironside','Stoneborn','Grumbling','Deep'] };
+      const noun = ['Flagon','Hearth','Barrel','Lantern','Boot','Antler','Dragon','Crow','Badger','Mermaid','Anchor','Anvil','Torch','Hound','Goblin'];
+      const a = adj[opt]||adj.Cozy;
+      return { main: `The ${a[Math.floor(Math.random()*a.length)]} ${noun[Math.floor(Math.random()*noun.length)]}`, sub: `A ${opt.toLowerCase()} establishment` };
+    }
+  },
+  rumour: {
+    label: 'Rumours',
+    options: ['Political','Criminal','Supernatural','War','Romance','Treasure'],
+    generate(opt) {
+      const rumours = {
+        Political:["The mayor has been seen meeting with agents of the empire in secret.","A noble house is funding a rival claimant to the throne.","The city council plans to raise taxes to fund a new military campaign.","One of the guild masters is actually a government spy."],
+        Criminal:["A new thieves' guild has moved in, and they're not playing nice with the locals.","Someone has been poisoning the city's wells — but only in the merchant quarter.","The black market is selling counterfeit healing potions.","A serial arsonist is targeting warehouses owned by a single trading company."],
+        Supernatural:["Lights have been seen moving in the old cemetery after midnight.","Animals are fleeing the northern forest — something has scared them.","A child claims to have spoken with the ghost of a long-dead king.","The river has turned red twice this moon cycle."],
+        War:["Soldiers are deserting the front lines — something terrible is happening at the border.","A peace summit is secretly being negotiated, but neither side trusts the other.","The enemy has a weapon no one has seen before.","Supply wagons are disappearing before they reach the front."],
+        Romance:["The innkeeper's daughter has been seen sneaking out to meet someone of ill repute.","Two rival noble families are feuding over a broken engagement.","The court bard is writing songs about a forbidden love affair — involving royalty.","A merchant sailor has three families in three different port cities."],
+        Treasure:["A farmer ploughing his field uncovered what looked like ancient gold coins.","The old hermit in the hills was once a famous treasure hunter — and he's been busy lately.","A map to a lost dwarven vault was reportedly sold at auction last month.","The sunken ship in the harbour still has its cargo — including something valuable."],
+      };
+      const list = rumours[opt] || rumours.Political;
+      return { main: list[Math.floor(Math.random()*list.length)], sub: `${opt} rumour — reliability unknown` };
+    }
+  },
+  loot: {
+    label: 'Loot',
+    options: ['Common','Uncommon','Rare','Very Rare','Legendary','Random'],
+    generate(opt) {
+      const tables = {
+        Common:["A well-worn leather coin pouch (3d6 gp)","A brass compass that always points to the nearest town","A folded map with several locations marked in red ink","A small bottle of ink and two fine quills","A lucky rabbit's foot (owner claims it works)","A iron key on a chain — nobody knows what it opens","A set of weighted dice","A silver-tipped arrow in a fine quiver"],
+        Uncommon:["Potion of Healing (2d4+2 HP)","A +1 dagger, blade engraved with serpents","Gloves of Thievery","A Bag of Ball Bearings that refills each dawn","Goggles of Night","A Sending Stone (paired — where is the other?)","Potion of Climbing","A Ring of Feather Falling"],
+        Rare:["A +2 longsword with a faintly glowing rune","Cloak of Displacement","A Wand of Magic Missiles (7 charges)","Gauntlets of Ogre Power","A Necklace of Fireballs (4 beads remaining)","Rope of Climbing (60 ft)","Boots of Speed","A Helm of Telepathy"],
+        'Very Rare':["A Staff of Fire (10 charges)","Mantle of Spell Resistance","A Flame Tongue greatsword","A Ring of Regeneration","Carpet of Flying (6×9 ft)","An Amulet of the Planes","A Mirror of Life Trapping (3 cells occupied)"],
+        Legendary:["A Vorpal Sword — keen edge severs on a natural 20","The Deck of Many Things (13 cards)","A Holy Avenger longsword","Apparatus of Kwalish — a mechanical lobster vehicle","A Ring of Three Wishes (2 remaining)","Sphere of Annihilation"],
+        Random:["3d6 × 10 gold pieces and a bloodstained note","A gemstone worth 50 gp and a broken lock","Two potions in unlabelled vials","A holy symbol of an unknown deity","Spell components and a scorched spellbook","A deed to property in a distant city"],
+      };
+      const list = tables[opt === 'Random' ? (['Common','Uncommon','Rare'][Math.floor(Math.random()*3)]) : opt] || tables.Common;
+      return { main: list[Math.floor(Math.random()*list.length)], sub: `${opt} loot` };
+    }
+  },
+  weather: {
+    label: 'Weather',
+    options: ['Spring','Summer','Autumn','Winter','Tropical','Arctic','Desert','Magical'],
+    generate(opt) {
+      const tables = {
+        Spring:["A warm morning mist burns off by midday — pleasant travelling weather.","Light rain showers, frequent but brief. Mud on the roads.","A brisk wind from the north brings clouds but no rain.","Perfect clear skies, mild temperature. Ideal for travel."],
+        Summer:["Sweltering heat. Constitution saving throws for extended exertion (DC 12).","A sudden afternoon thunderstorm — lightning on the hilltops.","Humid and overcast. No sun, but oppressively warm.","Blazing sun from dawn to dusk. Everything smells of dry grass."],
+        Autumn:["A cold snap has arrived early — frost on the ground at dawn.","Leaves fall in waves as a steady wind picks up through the day.","Grey overcast sky, occasional drizzle. Visibility reduced on roads.","The first real storm of the season — heavy rain and strong gusts."],
+        Winter:["Heavy snowfall overnight. Travel is slowed and tracks are buried.","A clear, bitterly cold day. The air is crisp and still.","Freezing rain coats surfaces in ice. Footing is treacherous.","A blizzard is developing to the north — make camp or press on?"],
+        Tropical:["Torrential rain for 1d4 hours, then brilliant sunshine.","Oppressive humidity. Armour and heavy clothing are miserable.","A warm, steady breeze off the sea — pleasant for those used to it.","Monsoon conditions. Rivers are rising."],
+        Arctic:["Whiteout conditions. Navigation by landmark is impossible.","Temperatures extreme enough to damage equipment and freeze water.","A brief window of pale sunlight — a few hours of manageable cold.","An ice storm descends from the mountains without warning."],
+        Desert:["A sandstorm on the horizon — it will reach your position in 2 hours.","Blazing heat. Water consumption doubled. Mirages are visible.","A cold desert night after a hot day — dramatic temperature drop.","A surprising oasis of calm and cool air — almost unnaturally so."],
+        Magical:["Rain falls upwards from the ground into the sky.","The sky cycles through all four seasons within a single hour.","A persistent aurora borealis, even in daylight. Magic items pulse.","The wind carries whispers — voices speaking in an unknown tongue.","Snow falls that is warm to the touch and leaves no cold.","Shadows point in the wrong direction today."],
+      };
+      const list = tables[opt] || tables.Spring;
+      return { main: list[Math.floor(Math.random()*list.length)], sub: `${opt} weather` };
+    }
+  },
+  hook: {
+    label: 'Plot Hooks',
+    options: ['Mystery','Rescue','Heist','Exploration','Intrigue','Combat','Social'],
+    generate(opt) {
+      const tables = {
+        Mystery:["A merchant was found dead in a locked room — no wounds, no poison, no signs of struggle.","Items are going missing across the village, but only things of sentimental value — nothing worth selling.","Three people have had the same dream on the same night. They've never met.","A tower appeared overnight in a field that was empty the day before."],
+        Rescue:["A local child has wandered into the ruins. Her parents are too afraid to go in.","A merchant caravan is overdue by two weeks. The guild is offering a reward for information.","An imprisoned noble claims to know the location of something the party needs.","A messenger arrived alone — their escort vanished somewhere on the northern road."],
+        Heist:["The evidence that could free an innocent prisoner is locked in the magistrate's vault.","A rival faction has stolen an item of great importance. Getting it back won't be easy.","The party needs something that's currently in a very well-guarded location.","A fence offers top coin for a specific painting — currently hanging in a noble's manor."],
+        Exploration:["An old map was found in a book from the estate sale. The location marked doesn't appear anywhere else.","Hunters report a valley they've never seen before, despite knowing these lands for decades.","A lighthouse has been sending signals that don't match any known code.","The road through the old forest has changed — it no longer leads where it should."],
+        Intrigue:["Two powerful factions each believe the party is working exclusively for them.","A trusted ally has been seen meeting with the enemy. There must be an explanation.","Someone is forging documents in the party's name — framing them for crimes.","A dying courier delivers a message meant for someone else — someone very important."],
+        Combat:["Bandits have fortified an abandoned keep and are extorting travellers on the main road.","Something has been attacking livestock at night — always leaving the same strange mark.","A bounty hunter is pursuing a member of the party for something they may or may not have done.","Mercenaries have been hired to ensure something doesn't happen — and the party is that something."],
+        Social:["The lord of the manor invites the party to dinner. Refusing would be an insult. Accepting could be a trap.","Two powerful figures want the party to mediate a dispute — both are lying.","A festival is happening and the party has inadvertently become the guests of honour.","The party must convince a paranoid city council to open its gates before the storm arrives."],
+      };
+      const list = tables[opt] || tables.Mystery;
+      return { main: list[Math.floor(Math.random()*list.length)], sub: `${opt} plot hook` };
+    }
+  },
+};
+
+let genActiveTab    = 'npc';
+let genActiveOpt    = null;
+let genLastResult   = null;
+const genHistory    = [];
+
+function openGenerators() {
+  genActiveTab = 'npc';
+  genActiveOpt = GEN_DATA.npc.options[0];
+  renderGenTabs();
+  renderGenOptions();
+  document.getElementById('genResult').innerHTML = 'Click Generate to begin';
+  document.getElementById('genHistory').innerHTML = '';
+  document.getElementById('genBackdrop').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeGenerators() {
+  document.getElementById('genBackdrop').classList.remove('open');
+  const stillOpen = document.querySelector('.backdrop.open,.kanban-backdrop.open,.timeline-backdrop.open,.dashboard-backdrop.open,.graph-backdrop.open,.pinboard-backdrop.open');
+  if (!stillOpen) document.body.style.overflow = '';
+}
+
+function renderGenTabs() {
+  document.querySelectorAll('.gen-tab').forEach(t => {
+    t.classList.toggle('active', t.dataset.gen === genActiveTab);
+  });
+}
+
+function renderGenOptions() {
+  const gen  = GEN_DATA[genActiveTab];
+  const opts = document.getElementById('genOptions');
+  if (!gen || !gen.options?.length) { opts.innerHTML = ''; return; }
+  if (!genActiveOpt || !gen.options.includes(genActiveOpt)) genActiveOpt = gen.options[0];
+  opts.innerHTML = gen.options.map(o =>
+    `<button class="gen-option-btn ${o === genActiveOpt ? 'active' : ''}" data-opt="${esc(o)}">${esc(o)}</button>`
+  ).join('');
+  opts.querySelectorAll('.gen-option-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      genActiveOpt = btn.dataset.opt;
+      opts.querySelectorAll('.gen-option-btn').forEach(b => b.classList.toggle('active', b === btn));
+    });
+  });
+}
+
+function doGenerate() {
+  const gen = GEN_DATA[genActiveTab];
+  if (!gen) return;
+  const result = gen.generate(genActiveOpt || gen.options?.[0]);
+  genLastResult = result;
+  const el = document.getElementById('genResult');
+  el.innerHTML = `${esc(result.main)}<div class="gen-sub-result">${esc(result.sub||'')}</div>`;
+
+  // Add to history
+  genHistory.unshift({ tab: genActiveTab, ...result });
+  if (genHistory.length > 20) genHistory.pop();
+  const hist = document.getElementById('genHistory');
+  hist.innerHTML = genHistory.map(h => `
+    <div style="display:flex;align-items:baseline;gap:0.6rem;padding:0.3rem 0;border-bottom:1px solid var(--border)">
+      <span style="font-size:11.5px;color:var(--text-dim);flex:1">${esc(h.main)}</span>
+      <span style="font-size:10px;color:var(--text-faint);flex-shrink:0">${esc(h.sub||h.tab)}</span>
+    </div>`).join('');
+}
+
+function initGenerators() {
+  document.querySelectorAll('.gen-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      genActiveTab = tab.dataset.gen;
+      genActiveOpt = null;
+      renderGenTabs();
+      renderGenOptions();
+      document.getElementById('genResult').innerHTML = 'Click Generate to begin';
+    });
+  });
+
+  document.getElementById('genRollBtn').addEventListener('click', doGenerate);
+  document.getElementById('genClose').addEventListener('click', closeGenerators);
+  document.getElementById('genBackdrop').addEventListener('click', e => {
+    if (e.target === document.getElementById('genBackdrop')) closeGenerators();
+  });
+
+  document.getElementById('genCopyBtn').addEventListener('click', () => {
+    if (!genLastResult) return;
+    navigator.clipboard?.writeText(genLastResult.main).then(() => openInlineNotice('✓ Copied to clipboard.'));
+  });
+
+  document.getElementById('genSaveBtn').addEventListener('click', () => {
+    if (!genLastResult || !state.fb.campaignId) { openInlineNotice('Select a campaign first.'); return; }
+    const catMap = { npc:'npc', place:'location', tavern:'location', rumour:'lore', loot:'item', weather:'lore', hook:'quest' };
+    const cat = catMap[genActiveTab] || 'lore';
+    const now = Date.now();
+    const entry = {
+      id: uid(), category: cat, name: genLastResult.main,
+      description: genLastResult.sub || '', dmDescription: '', tags: ['generated'],
+      fields: {}, links: [], dmOnly: true, dmOnlyFields: [],
+      changelog: [{ ts: now, created: true, author: 'dm', changes: [{ label:'Created', old:'', new: genLastResult.main }] }],
+      createdAt: now, updatedAt: now, pinned: false,
+    };
+    state.entries.unshift(entry);
+    fsSet(entry); saveLocal(); render();
+    openInlineNotice(`✓ Saved "${genLastResult.main}" as ${(CATEGORIES[cat]||CATEGORIES.lore).label}`);
+  });
+}
+
+/* ════════════════════════════════════════
+   STAGE 1 — PRE-BUILT TEMPLATES
+════════════════════════════════════════ */
+
+const BUILTIN_TEMPLATES = [
+  { name:'Mysterious Stranger', category:'npc', description:'A figure who always seems to know more than they let on. Speaks in half-truths.', tags:['mysterious','ally','informant'], fields:{ status:'Unknown', role:'Informant' } },
+  { name:'Corrupt Noble', category:'npc', description:'A lord or lady whose wealth masks a web of crime and moral compromise.', tags:['villain','noble','corrupt'], fields:{ status:'Alive', role:'Noble' } },
+  { name:'Loyal Guard Captain', category:'npc', description:'A veteran soldier who follows orders but has a strong personal code of honour.', tags:['ally','law','military'], fields:{ status:'Alive', role:'Captain' } },
+  { name:'Ancient Ruins', category:'location', description:'Crumbling stone structures overgrown with moss and vines. What civilisation built this — and why did they fall?', tags:['dungeon','ruins','ancient'], fields:{ type:'Ruins', status:'Dangerous' } },
+  { name:'Thieves Guild Hideout', category:'location', description:'A secret location known only to guild members. Access is guarded, the interior well-equipped.', tags:['criminal','secret','guild'], fields:{ type:'Stronghold', status:'Hostile' } },
+  { name:'The Players Guild', category:'faction', description:'A powerful organisation that operates from the shadows, pulling strings across the region.', tags:['criminal','powerful','secret'], fields:{ alignment:'Lawful Evil', goal:'Control trade and information' } },
+  { name:'Order of the Silver Dawn', category:'faction', description:'A holy order dedicated to fighting undead and dark magic. Principled but rigid.', tags:['holy','order','anti-undead'], fields:{ alignment:'Lawful Good', goal:'Eradicate undead and dark magic' } },
+  { name:'Stop the Ritual', category:'quest', description:'Someone or something is preparing a dark ritual. The players must find where, stop who, and deal with the consequences.', tags:['urgent','main-quest','ritual'], fields:{ status:'Active', difficulty:'Deadly' } },
+  { name:'The Missing Person', category:'quest', description:'Someone important has disappeared without a trace. Find them before it is too late.', tags:['investigation','mystery'], fields:{ status:'Active', difficulty:'Medium' } },
+  { name:'Cursed Artefact', category:'item', description:'An object of great power with a terrible cost. Those who use it are changed — never for the better.', tags:['cursed','powerful','dangerous'], fields:{ rarity:'Legendary', attunement:'Required' } },
+  { name:'Ancient Prophecy', category:'lore', description:'A foretelling from ages past that may apply to current events. Or perhaps it is a coincidence — or a fabrication.', tags:['prophecy','ancient','mystery'], fields:{ reliability:'Legend', era:'Ancient' } },
+];
+
+function initBuiltinTemplates() {
+  const existing = loadTemplates();
+  const existingNames = new Set(existing.map(t => t.name));
+  // Only add built-ins that don't already exist
+  BUILTIN_TEMPLATES.forEach(tpl => {
+    if (!existingNames.has(tpl.name)) {
+      existing.push({ id: uid(), ...tpl, dmOnly: true, dmOnlyFields: [], createdAt: Date.now() });
+    }
+  });
+  saveTemplates(existing);
+}
+
+/* ════════════════════════════════════════
+   INITIATIVE TRACKER / ENCOUNTER BUILDER
+════════════════════════════════════════ */
+
+const CONDITIONS = [
+  { id:'blinded',        label:'Blinded',        color:'#8c7d68' },
+  { id:'charmed',        label:'Charmed',        color:'#d94ab0' },
+  { id:'deafened',       label:'Deafened',       color:'#8c7d68' },
+  { id:'exhaustion',     label:'Exhaustion',     color:'#d07a22' },
+  { id:'frightened',     label:'Frightened',     color:'#9d6fd9' },
+  { id:'grappled',       label:'Grappled',       color:'#4a91d9' },
+  { id:'incapacitated',  label:'Incap.',         color:'#d94a4a' },
+  { id:'invisible',      label:'Invisible',      color:'#60c0e8' },
+  { id:'paralyzed',      label:'Paralyzed',      color:'#d94a4a' },
+  { id:'petrified',      label:'Petrified',      color:'#8c7d68' },
+  { id:'poisoned',       label:'Poisoned',       color:'#4abf78' },
+  { id:'prone',          label:'Prone',          color:'#d07a22' },
+  { id:'restrained',     label:'Restrained',     color:'#4a91d9' },
+  { id:'stunned',        label:'Stunned',        color:'#d94a4a' },
+  { id:'unconscious',    label:'Unconscious',    color:'#d94a4a' },
+  { id:'concentration',  label:'Conc.',          color:'#e8a04a' },
+];
+
+let combatOpen   = false;
+let combatants   = [];   // [{id,name,initiative,initMod,hp,maxHp,ac,type,entryId,conditions,notes,color}]
+let combatRound  = 1;
+let combatActive = 0;    // index of current turn
+let cbtSideTab   = 'add';
+let cbtDragId    = null;
+
+/* ── Persistence ─────────────────────────────────────────────── */
+function _cbtKey() { const c=state.fb.campaignId; return c?`lk_combat_${c}`:null; }
+function loadCombat() {
+  try { const k=_cbtKey(); return k?JSON.parse(localStorage.getItem(k)||'null'):null; } catch{return null;}
+}
+function saveCombat() {
+  const k=_cbtKey(); if(!k)return;
+  localStorage.setItem(k,JSON.stringify({combatants,combatRound,combatActive}));
+}
+
+function openCombat() {
+  combatOpen = true;
+  const saved = loadCombat();
+  if (saved) { combatants=saved.combatants||[]; combatRound=saved.combatRound||1; combatActive=saved.combatActive||0; }
+  else { combatants=[]; combatRound=1; combatActive=0; }
+  document.getElementById('combatBackdrop').classList.add('open');
+  document.body.style.overflow = 'hidden';
+  renderCombat();
+}
+
+function closeCombat() {
+  combatOpen = false;
+  document.getElementById('combatBackdrop').classList.remove('open');
+  const still=document.querySelector('.backdrop.open,.kanban-backdrop.open,.dashboard-backdrop.open,.graph-backdrop.open,.pinboard-backdrop.open');
+  if(!still) document.body.style.overflow='';
+}
+
+/* ── Render ──────────────────────────────────────────────────── */
+function renderCombat() {
+  document.getElementById('combatRoundNum').textContent = combatRound;
+  renderCombatList();
+  renderCombatSidebar();
+}
+
+function hpColor(cur,max) {
+  if(!max) return '#4a91d9';
+  const p=cur/max;
+  if(p>0.5) return '#4abf78';
+  if(p>0.25) return '#d07a22';
+  return '#d94a4a';
+}
+
+function renderCombatList() {
+  const wrap = document.getElementById('combatList');
+  if(!combatants.length) {
+    wrap.innerHTML = `<div style="text-align:center;padding:4rem 2rem;color:var(--text-faint);font-style:italic">
+      <div style="font-size:2.5rem;opacity:.1;margin-bottom:.75rem">⚔</div>
+      No combatants yet. Add from the panel on the right.
+    </div>`;
+    return;
+  }
+  wrap.innerHTML = combatants.map((c,i) => {
+    const isActive = i === combatActive;
+    const isUncon  = c.conditions?.includes('unconscious');
+    const hpPct    = c.maxHp ? Math.max(0,Math.min(100,c.hp/c.maxHp*100)) : 100;
+    const hpCol    = hpColor(c.hp,c.maxHp);
+    const condHtml = CONDITIONS.map(cond => {
+      const on = c.conditions?.includes(cond.id);
+      return `<span class="cond-pill ${on?'active':'inactive'}" data-ci="${i}" data-cond="${cond.id}"
+        style="${on?`color:${cond.color};border-color:${cond.color};background:${cond.color}18`:''}">
+        ${cond.label}</span>`;
+    }).join('');
+    const accentCol = c.color || '#4a91d9';
+    return `<div class="combatant-card ${isActive?'active-turn':''} ${isUncon?'unconscious':''}"
+        draggable="true" data-ci="${i}" style="border-left:4px solid ${accentCol}">
+      <div class="combatant-inner">
+        <div class="combatant-turn-badge">${i+1}</div>
+        <div class="combatant-initiative-box">
+          <div class="combatant-init-num" data-edit-init="${i}" title="Click to edit initiative">${c.initiative??'—'}</div>
+          <div class="combatant-init-label">Init</div>
+        </div>
+        <div class="combatant-info">
+          <div class="combatant-name">${esc(c.name)}</div>
+          <div class="combatant-meta">
+            ${c.ac?`<span>AC ${c.ac}</span>`:''}
+            ${c.type?`<span style="text-transform:capitalize;color:var(--text-faint)">${c.type}</span>`:''}
+            ${c.notes?`<span style="font-style:italic">${esc(c.notes.slice(0,30))}</span>`:''}
+          </div>
+        </div>
+        <div class="combatant-hp-section" style="position:relative">
+          <div class="combatant-hp-nums" data-edit-hp="${i}" title="Click to damage / heal">
+            ${c.hp??'—'} / ${c.maxHp??'—'}
+          </div>
+          <div style="font-size:9px;color:var(--text-faint);font-family:'Cinzel',serif;letter-spacing:.06em">HP</div>
+          <div class="combatant-hp-bar-wrap">
+            <div class="combatant-hp-bar-fill" style="width:${hpPct}%;background:${hpCol}"></div>
+          </div>
+        </div>
+        <button class="cs-equipment-del" data-remove-ci="${i}" style="opacity:.5;font-size:16px;margin-left:.3rem">×</button>
+      </div>
+      <div class="combatant-conditions">${condHtml}</div>
+      ${isUncon && c.maxHp ? `<div style="display:flex;gap:.5rem;padding:.35rem .75rem .55rem;align-items:center">
+        <span style="font-family:'Cinzel',serif;font-size:8.5px;font-weight:700;letter-spacing:.1em;color:#d94a4a">DEATH SAVES</span>
+        <div style="display:flex;gap:.25rem">${[1,2,3].map(n=>`<div class="cs-death-dot ${n<=(c.deathSucc||0)?'success':''}" data-ds-ci="${i}" data-ds-type="s" data-ds-n="${n}" style="cursor:pointer"></div>`).join('')}</div>
+        <div style="display:flex;gap:.25rem">${[1,2,3].map(n=>`<div class="cs-death-dot ${n<=(c.deathFail||0)?'fail':''}" data-ds-ci="${i}" data-ds-type="f" data-ds-n="${n}" style="cursor:pointer"></div>`).join('')}</div>
+        <button class="pb-tool-btn" data-stab-ci="${i}" style="margin-left:auto;font-size:8.5px;padding:.2rem .5rem">Stabilize</button>
+      </div>` : ''}
+    </div>`;
+  }).join('');
+
+  /* Wire interactions */
+  wrap.querySelectorAll('[data-edit-init]').forEach(el => {
+    el.addEventListener('click', () => {
+      const i = +el.dataset.editInit;
+      const val = prompt('Enter initiative:', combatants[i].initiative??'');
+      if(val===null) return;
+      combatants[i].initiative = parseInt(val)||0;
+      saveCombat(); renderCombatList();
+    });
+  });
+
+  wrap.querySelectorAll('[data-edit-hp]').forEach(el => {
+    el.addEventListener('click', e => { e.stopPropagation(); showHpPopover(+el.dataset.editHp, el); });
+  });
+
+  wrap.querySelectorAll('[data-remove-ci]').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      const i = +btn.dataset.removeCi;
+      combatants.splice(i,1);
+      if(combatActive>=combatants.length) combatActive=Math.max(0,combatants.length-1);
+      saveCombat(); renderCombat();
+    });
+  });
+
+  wrap.querySelectorAll('.cond-pill').forEach(pill => {
+    pill.addEventListener('click', e => {
+      e.stopPropagation();
+      const i=+pill.dataset.ci, cond=pill.dataset.cond;
+      if(!combatants[i].conditions) combatants[i].conditions=[];
+      const idx=combatants[i].conditions.indexOf(cond);
+      if(idx>-1) combatants[i].conditions.splice(idx,1); else combatants[i].conditions.push(cond);
+      if(cond==='unconscious') { combatants[i].deathSucc=0; combatants[i].deathFail=0; }
+      saveCombat(); renderCombatList();
+    });
+  });
+
+  wrap.querySelectorAll('[data-ds-ci]').forEach(dot => {
+    dot.addEventListener('click', e => {
+      e.stopPropagation();
+      const i=+dot.dataset.dsCi, t=dot.dataset.dsType, n=+dot.dataset.dsDsN||+dot.dataset.dsN;
+      const key = t==='s'?'deathSucc':'deathFail';
+      combatants[i][key] = combatants[i][key]>=n ? n-1 : n;
+      if(combatants[i].deathSucc>=3) { combatants[i].conditions=(combatants[i].conditions||[]).filter(c=>c!=='unconscious'); combatants[i].hp=1; openInlineNotice(`${combatants[i].name} is stabilized!`); }
+      if(combatants[i].deathFail>=3) openInlineNotice(`${combatants[i].name} has died!`);
+      saveCombat(); renderCombatList();
+    });
+  });
+
+  wrap.querySelectorAll('[data-stab-ci]').forEach(btn => {
+    btn.addEventListener('click', e => { e.stopPropagation(); const i=+btn.dataset.stabCi; combatants[i].deathSucc=3; combatants[i].hp=1; combatants[i].conditions=(combatants[i].conditions||[]).filter(c=>c!=='unconscious'); saveCombat(); renderCombatList(); });
+  });
+
+  /* Drag to reorder */
+  wrap.querySelectorAll('.combatant-card').forEach(card => {
+    card.addEventListener('dragstart', e => { cbtDragId=+card.dataset.ci; card.classList.add('dragging-cbt'); e.dataTransfer.effectAllowed='move'; });
+    card.addEventListener('dragend',   () => { card.classList.remove('dragging-cbt'); cbtDragId=null; });
+    card.addEventListener('dragover',  e => { e.preventDefault(); });
+    card.addEventListener('drop', e => {
+      e.preventDefault();
+      if(cbtDragId===null||cbtDragId===+card.dataset.ci) return;
+      const [moved]=combatants.splice(cbtDragId,1);
+      const target=+card.dataset.ci;
+      combatants.splice(cbtDragId<target?target-1:target,0,moved);
+      cbtDragId=null; saveCombat(); renderCombatList();
+    });
+  });
+}
+
+function showHpPopover(idx, anchor) {
+  document.querySelectorAll('.hp-popover').forEach(p=>p.remove());
+  const c    = combatants[idx];
+  const pop  = document.createElement('div');
+  pop.className = 'hp-popover';
+  pop.style.cssText = 'position:fixed;z-index:9000;min-width:170px;';
+  pop.innerHTML = `
+    <div style="font-family:'Cinzel',serif;font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--text-dim);margin-bottom:.4rem;text-align:center">${esc(c.name)}</div>
+    <input class="hp-popover-input" id="hpPopInput" type="number" value="" placeholder="Amount…">
+    <div class="hp-popover-btns">
+      <button class="btn btn-danger btn-sm" id="hpDmgBtn" style="flex:1">− Damage</button>
+      <button class="btn btn-primary btn-sm" id="hpHealBtn" style="flex:1;background:linear-gradient(135deg,#2a7a40,#3a9a50);border-color:#4abf78;color:#a0ffc0">+ Heal</button>
+    </div>
+    <div style="display:flex;gap:.4rem;margin-top:.4rem">
+      <button class="btn btn-ghost btn-sm" id="hpSetMax" style="flex:1;font-size:9px">Set Max</button>
+      <button class="btn btn-ghost btn-sm" id="hpSetCur" style="flex:1;font-size:9px">Set Cur</button>
+    </div>`;
+
+  // Position fixed relative to anchor element, keep within viewport
+  document.body.appendChild(pop);
+  const rect = anchor.getBoundingClientRect();
+  const pw   = 170;
+  const ph   = 130;
+  let left = rect.right + 8;
+  let top  = rect.top;
+  if (left + pw > window.innerWidth  - 8) left = rect.left - pw - 8;
+  if (top  + ph > window.innerHeight - 8) top  = window.innerHeight - ph - 8;
+  pop.style.left = Math.max(8, left) + 'px';
+  pop.style.top  = Math.max(8, top)  + 'px';
+
+  const inp = pop.querySelector('#hpPopInput');
+  inp.focus();
+
+  const close = () => pop.remove();
+  pop.querySelector('#hpDmgBtn').addEventListener('click', () => {
+    const v=parseInt(inp.value)||0; combatants[idx].hp=Math.max(0,(combatants[idx].hp||0)-v);
+    if(combatants[idx].hp===0 && !combatants[idx].conditions?.includes('unconscious')) { combatants[idx].conditions=[...(combatants[idx].conditions||[]),'unconscious']; combatants[idx].deathSucc=0; combatants[idx].deathFail=0; }
+    saveCombat(); close(); renderCombatList();
+  });
+  pop.querySelector('#hpHealBtn').addEventListener('click', () => {
+    const v=parseInt(inp.value)||0; combatants[idx].hp=Math.min(combatants[idx].maxHp||999,(combatants[idx].hp||0)+v);
+    combatants[idx].conditions=(combatants[idx].conditions||[]).filter(c=>c!=='unconscious');
+    saveCombat(); close(); renderCombatList();
+  });
+  pop.querySelector('#hpSetMax').addEventListener('click', () => { const v=parseInt(inp.value)||0; combatants[idx].maxHp=v; combatants[idx].hp=Math.min(combatants[idx].hp||0,v); saveCombat(); close(); renderCombatList(); });
+  pop.querySelector('#hpSetCur').addEventListener('click', () => { combatants[idx].hp=parseInt(inp.value)||0; saveCombat(); close(); renderCombatList(); });
+  inp.addEventListener('keydown', e => { if(e.key==='Escape') close(); if(e.key==='Enter') pop.querySelector('#hpDmgBtn').click(); });
+  setTimeout(()=>document.addEventListener('click', function h(e){ if(!pop.contains(e.target)){close();document.removeEventListener('click',h);} }),50);
+}
+
+function renderCombatSidebar() {
+  const body = document.getElementById('combatSidebarBody');
+  document.querySelectorAll('.cbt-stab').forEach(t=>t.classList.toggle('active',t.dataset.cbtTab===cbtSideTab));
+
+  if(cbtSideTab==='add') {
+    body.innerHTML = `
+      <div style="font-family:'Cinzel',serif;font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--text-dim);margin-bottom:.6rem">Quick Add Combatant</div>
+      <div class="form-group" style="margin-bottom:.6rem"><label>Name *</label><input id="cbtName" type="text" placeholder="Goblin, Orc…"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-bottom:.6rem">
+        <div class="form-group" style="margin:0"><label>Initiative</label><input id="cbtInit" type="number" placeholder="d20+mod"></div>
+        <div class="form-group" style="margin:0"><label>Init Mod</label><input id="cbtInitMod" type="number" placeholder="+2" value="0"></div>
+        <div class="form-group" style="margin:0"><label>Max HP</label><input id="cbtMaxHp" type="number" placeholder="15"></div>
+        <div class="form-group" style="margin:0"><label>AC</label><input id="cbtAc" type="number" placeholder="12"></div>
+      </div>
+      <div class="form-group" style="margin-bottom:.6rem">
+        <label>Type</label>
+        <select id="cbtType"><option value="monster">Monster</option><option value="npc">NPC</option><option value="player">Player</option></select>
+      </div>
+      <div style="display:flex;gap:.4rem">
+        <button class="btn btn-ghost btn-sm" id="cbtRollInit" title="Roll d20 + modifier">⚄ Roll Init</button>
+        <button class="btn btn-primary btn-sm" id="cbtAddBtn" style="flex:1">+ Add</button>
+      </div>
+      <hr class="divider" style="margin:1rem 0">
+      <div style="font-family:'Cinzel',serif;font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--text-dim);margin-bottom:.5rem">Add Multiple</div>
+      <div style="display:flex;gap:.4rem;margin-bottom:.4rem">
+        <input id="cbtMultiName" type="text" placeholder="Goblin" style="flex:2;font-size:13px">
+        <input id="cbtMultiCount" type="number" min="1" max="20" value="3" style="flex:1;font-size:13px" title="Count">
+        <button class="btn btn-ghost btn-sm" id="cbtAddMultiBtn">+N</button>
+      </div>
+      <div class="form-hint">Adds N copies with sequential names (Goblin 1, 2…)</div>`;
+
+    body.querySelector('#cbtRollInit').addEventListener('click', () => {
+      const mod=parseInt(body.querySelector('#cbtInitMod').value)||0;
+      body.querySelector('#cbtInit').value = Math.floor(Math.random()*20)+1+mod;
+    });
+
+    const doAdd = (name, count=1) => {
+      if(!name) return;
+      const initMod=parseInt(body.querySelector('#cbtInitMod').value)||0;
+      const rawInit=body.querySelector('#cbtInit').value;
+      const maxHp=parseInt(body.querySelector('#cbtMaxHp').value)||0;
+      const ac=parseInt(body.querySelector('#cbtAc').value)||0;
+      const type=body.querySelector('#cbtType').value;
+      const COLORS=['#4a91d9','#d94a4a','#4abf78','#9d6fd9','#d07a22','#60c0e8','#e8a04a','#d94ab0'];
+      for(let i=0;i<count;i++){
+        const init=rawInit?(parseInt(rawInit)||0):Math.floor(Math.random()*20)+1+initMod;
+        combatants.push({
+          id:uid(), name:count>1?`${name} ${i+1}`:name,
+          initiative:init, initMod, hp:maxHp, maxHp, ac, type,
+          conditions:[], notes:'', entryId:null,
+          color:COLORS[combatants.length%COLORS.length],
+          deathSucc:0, deathFail:0,
+        });
+      }
+      saveCombat(); renderCombat();
+    };
+
+    body.querySelector('#cbtAddBtn').addEventListener('click', () => { doAdd(body.querySelector('#cbtName').value.trim()); body.querySelector('#cbtName').value=''; body.querySelector('#cbtInit').value=''; });
+    body.querySelector('#cbtName').addEventListener('keydown', e => { if(e.key==='Enter') body.querySelector('#cbtAddBtn').click(); });
+    body.querySelector('#cbtAddMultiBtn').addEventListener('click', () => { doAdd(body.querySelector('#cbtMultiName').value.trim(), parseInt(body.querySelector('#cbtMultiCount').value)||1); });
+  }
+
+  else if(cbtSideTab==='party') {
+    const chars = state.entries.filter(e=>e.category==='character');
+    if(!chars.length) { body.innerHTML=`<div style="font-size:13px;color:var(--text-faint);font-style:italic;padding:1rem 0">No characters yet. Create characters in the 🧙 Characters section.</div>`; return; }
+    body.innerHTML = `<div style="font-family:'Cinzel',serif;font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--text-dim);margin-bottom:.6rem">Click to add to combat</div>`+
+      chars.map(c => {
+        const sheet=c.sheet||{}; const f=c.fields||{};
+        const dexMod=parseInt(getMod(sheet.abilities?.DEX||10));
+        const onBoard=combatants.some(x=>x.entryId===c.id);
+        return `<div class="merge-entry-row ${onBoard?'selected':''}" data-add-char="${esc(c.id)}" style="${onBoard?'opacity:.5;pointer-events:none':''}">
+          <span style="font-size:1rem">${c.image?'':'🧙'}</span>
+          <div style="flex:1;min-width:0">
+            <div style="font-family:'Cinzel',serif;font-size:11px;font-weight:600;color:var(--text)">${esc(c.name)}</div>
+            <div style="font-size:11px;color:var(--text-faint)">${esc(f.class||'')} ${f.level?`Lvl ${f.level}`:''} · DEX ${dexMod>=0?'+':''}${dexMod}</div>
+          </div>
+          ${onBoard?'<span style="color:#4abf78;font-size:11px">✓</span>':'<span style="color:var(--text-faint);font-size:11px">+</span>'}
+        </div>`;
+      }).join('');
+    body.querySelectorAll('[data-add-char]').forEach(row => {
+      row.addEventListener('click', () => {
+        const c=state.entries.find(e=>e.id===row.dataset.addChar);
+        if(!c) return;
+        const sh=c.sheet||{}; const f=c.fields||{};
+        const dexMod=parseInt(getMod(sh.abilities?.DEX||10));
+        const init=Math.floor(Math.random()*20)+1+dexMod;
+        combatants.push({ id:uid(), name:c.name, initiative:init, initMod:dexMod, hp:parseInt(sh.hp?.current||sh.hp?.max||0), maxHp:parseInt(sh.hp?.max||0), ac:parseInt(sh.combat?.ac||0)||0, type:'player', entryId:c.id, conditions:[], notes:'', color:'#4a91d9', deathSucc:0, deathFail:0 });
+        saveCombat(); renderCombat();
+      });
+    });
+  }
+
+  else if(cbtSideTab==='npcs') {
+    const npcs=state.entries.filter(e=>['npc','character'].includes(e.category)&&state.role==='dm');
+    body.innerHTML = `<div style="font-family:'Cinzel',serif;font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--text-dim);margin-bottom:.6rem">Click to add NPC to combat</div>`+
+      (npcs.length?npcs.map(n=>{
+        const onBoard=combatants.some(x=>x.entryId===n.id);
+        const cat=CATEGORIES[n.category]||CATEGORIES.lore;
+        return `<div class="merge-entry-row ${onBoard?'selected':''}" data-add-npc="${esc(n.id)}" style="${onBoard?'opacity:.5;pointer-events:none':''}">
+          <span style="color:${cat.color}">${cat.icon}</span>
+          <div style="flex:1;min-width:0"><div style="font-family:'Cinzel',serif;font-size:11px;font-weight:600;color:var(--text)">${esc(n.name)}</div>
+          <div style="font-size:10.5px;color:var(--text-faint)">${esc(n.fields?.role||n.fields?.race||'')}</div></div>
+          ${onBoard?'<span style="color:#4abf78;font-size:11px">✓</span>':'<span style="color:var(--text-faint);font-size:11px">+</span>'}
+        </div>`;}).join('')
+      :`<div style="font-size:13px;color:var(--text-faint);font-style:italic;padding:1rem 0">No NPC entries found.</div>`);
+    body.querySelectorAll('[data-add-npc]').forEach(row=>{
+      row.addEventListener('click',()=>{
+        const n=state.entries.find(e=>e.id===row.dataset.addNpc); if(!n) return;
+        const COLORS=['#d94a4a','#d07a22','#9d6fd9','#8c7d68'];
+        combatants.push({id:uid(),name:n.name,initiative:Math.floor(Math.random()*20)+1,initMod:0,hp:10,maxHp:10,ac:12,type:'npc',entryId:n.id,conditions:[],notes:'',color:COLORS[combatants.length%COLORS.length],deathSucc:0,deathFail:0});
+        saveCombat(); renderCombat();
+      });
+    });
+  }
+}
+
+function initCombat() {
+  document.getElementById('combatNextTurn').addEventListener('click', () => {
+    if(!combatants.length) return;
+    combatActive=(combatActive+1)%combatants.length;
+    if(combatActive===0) combatRound++;
+    saveCombat(); renderCombat();
+  });
+  document.getElementById('combatPrevTurn').addEventListener('click', () => {
+    if(!combatants.length) return;
+    if(combatActive===0&&combatRound>1) { combatRound--; combatActive=combatants.length-1; }
+    else if(combatActive>0) combatActive--;
+    saveCombat(); renderCombat();
+  });
+  document.getElementById('combatRollAllBtn').addEventListener('click', () => {
+    combatants.forEach(c=>{ if(c.type!=='player') c.initiative=Math.floor(Math.random()*20)+1+(c.initMod||0); });
+    combatants.sort((a,b)=>(b.initiative||0)-(a.initiative||0));
+    combatActive=0; saveCombat(); renderCombat();
+  });
+  document.getElementById('combatSortBtn').addEventListener('click', () => {
+    combatants.sort((a,b)=>(b.initiative||0)-(a.initiative||0));
+    saveCombat(); renderCombat();
+  });
+  document.getElementById('combatResetBtn').addEventListener('click', () => { combatRound=1; combatActive=0; saveCombat(); renderCombat(); });
+  document.getElementById('combatEndBtn').addEventListener('click', () => {
+    if(!confirm('End combat and clear all combatants?')) return;
+    combatants=[]; combatRound=1; combatActive=0;
+    saveCombat(); closeCombat();
+  });
+  document.getElementById('combatClose').addEventListener('click', closeCombat);
+  document.querySelectorAll('.cbt-stab').forEach(t=>{
+    t.addEventListener('click',()=>{ cbtSideTab=t.dataset.cbtTab; renderCombatSidebar(); });
+  });
+  // Space = next turn when combat open
+  document.addEventListener('keydown', e=>{
+    if(!combatOpen) return;
+    const tag=document.activeElement?.tagName;
+    if(tag==='INPUT'||tag==='TEXTAREA'||tag==='SELECT') return;
+    if(e.key===' '||e.key==='ArrowRight') { e.preventDefault(); document.getElementById('combatNextTurn').click(); }
+    if(e.key==='ArrowLeft') { e.preventDefault(); document.getElementById('combatPrevTurn').click(); }
+  });
+}
+
+/* ════════════════════════════════════════
+   IN-WORLD CALENDAR
+════════════════════════════════════════ */
+
+const CAL_PRESETS = {
+  harptos: {
+    name:'Harptos (Forgotten Realms)',
+    weekDays:['1st','2nd','3rd','4th','5th','6th','7th','8th','9th','10th'],
+    months:[
+      {name:'Hammer',days:30},{name:'Midwinter',days:1,special:true},
+      {name:'Alturiak',days:30},{name:'Ches',days:30},{name:'Tarsakh',days:30},
+      {name:'Greengrass',days:1,special:true},{name:'Mirtul',days:30},
+      {name:'Kythorn',days:30},{name:'Flamerule',days:30},
+      {name:'Midsummer',days:1,special:true},{name:'Shieldmeet',days:1,special:true},
+      {name:'Eleasias',days:30},{name:'Eleint',days:30},
+      {name:'Highharvestide',days:1,special:true},{name:'Marpenoth',days:30},
+      {name:'Uktar',days:30},{name:'Feast of the Moon',days:1,special:true},{name:'Nightal',days:30},
+    ],
+    era:'DR', startYear:1492,
+  },
+  greyhawk: {
+    name:'Greyhawk (Common Year)',
+    weekDays:['Starday','Sunday','Moonday','Godsday','Waterday','Earthday','Freeday'],
+    months:[
+      {name:'Needfest',days:7,special:true},{name:'Fireseek',days:28},{name:'Readying',days:28},
+      {name:'Coldeven',days:28},{name:'Growfest',days:7,special:true},{name:'Planting',days:28},
+      {name:'Flocktime',days:28},{name:'Wealsun',days:28},{name:'Richfest',days:7,special:true},
+      {name:'Reaping',days:28},{name:'Goodmonth',days:28},{name:'Harvester',days:28},
+      {name:'Brewfest',days:7,special:true},{name:'Patchwall',days:28},{name:'Ready\'reat',days:28},
+      {name:'Sunsebb',days:28},
+    ],
+    era:'CY', startYear:591,
+  },
+  generic: {
+    name:'Generic Fantasy Calendar',
+    weekDays:['Moonday','Tideday','Wildday','Earthday','Fireday','Starday','Restday'],
+    months:[
+      {name:'Frostmoon',days:30},{name:'Thawmonth',days:30},{name:'Seedmonth',days:30},
+      {name:'Bloomtide',days:30},{name:'Sunmonth',days:30},{name:'Highsummer',days:30},
+      {name:'Harvestide',days:30},{name:'Goldleaf',days:30},{name:'Ashmonth',days:30},
+      {name:'Dimtide',days:30},{name:'Shadowmonth',days:30},{name:'Darkfrost',days:30},
+    ],
+    era:'AE', startYear:1000,
+  },
+};
+
+let calOpen        = false;
+let calPreset      = 'generic';
+let calViewYear    = 1000;
+let calViewMonthIdx= 0;
+let calConfig      = null;  // active calendar config
+let calShowConfig  = false;
+
+function _calKey() { const c=state.fb.campaignId; return c?`lk_cal_${c}`:null; }
+function loadCalData() {
+  try { const k=_calKey(); return k?JSON.parse(localStorage.getItem(k)||'null'):null; } catch{return null;}
+}
+function saveCalData(data) {
+  const k=_calKey(); if(!k) return;
+  localStorage.setItem(k,JSON.stringify(data));
+}
+
+function openCalendar() {
+  calOpen=true;
+  const saved=loadCalData();
+  if(saved) { calPreset=saved.preset||'generic'; calConfig=saved.config||CAL_PRESETS[calPreset]; calViewYear=saved.currentYear||calConfig.startYear; calViewMonthIdx=saved.currentMonthIdx||0; }
+  else { calPreset='generic'; calConfig=JSON.parse(JSON.stringify(CAL_PRESETS.generic)); calViewYear=calConfig.startYear; calViewMonthIdx=0; }
+  calShowConfig=false;
+  document.getElementById('calendarBackdrop').classList.add('open');
+  document.body.style.overflow='hidden';
+  renderCalendar();
+}
+function closeCalendar() {
+  calOpen=false;
+  document.getElementById('calendarBackdrop').classList.remove('open');
+  const still=document.querySelector('.backdrop.open,.kanban-backdrop.open,.dashboard-backdrop.open,.graph-backdrop.open,.pinboard-backdrop.open');
+  if(!still) document.body.style.overflow='';
+}
+
+function calSave() {
+  saveCalData({ preset:calPreset, config:calConfig, currentYear:calViewYear, currentMonthIdx:calViewMonthIdx });
+}
+
+function getCalMonth() { return calConfig?.months?.[calViewMonthIdx]||{name:'Unknown',days:30}; }
+
+function renderCalendar() {
+  const month  = getCalMonth();
+  const wdays  = calConfig?.weekDays||['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  const wcols  = wdays.length;
+
+  document.getElementById('calMonthYear').textContent = `${month.name}, Year ${calViewYear} ${calConfig?.era||''}`;
+
+  /* ── Main grid ─────────────────────────────────────────────── */
+  const main = document.getElementById('calMain');
+
+  if(calShowConfig) {
+    renderCalConfig(); return;
+  }
+
+  // Collect session entries that have dates (parse year/month/day from fields.date)
+  const sessionEvents = {};
+  state.entries.filter(e=>e.category==='session'&&e.fields?.date).forEach(e=>{
+    const d=e.fields.date.trim(); // expect "Day N, Month YEAR" or ISO
+    // Try to match "Day NN, MonthName YYYY"
+    const m=d.match(/(\d+)[,\s]+(\w+)[,\s]+(\d+)/);
+    if(m) {
+      const day=parseInt(m[1]), mName=m[2], year=parseInt(m[3]);
+      const mIdx=calConfig.months.findIndex(mo=>mo.name.toLowerCase().startsWith(mName.toLowerCase()));
+      if(mIdx>=0&&year===calViewYear&&mIdx===calViewMonthIdx) {
+        if(!sessionEvents[day]) sessionEvents[day]=[];
+        sessionEvents[day].push(e);
+      }
+    }
+  });
+
+  // Render week-day headers
+  const headerHtml = `<div class="cal-week-header" style="grid-template-columns:repeat(${wcols},1fr)">${wdays.map(d=>`<div class="cal-weekday-label">${d}</div>`).join('')}</div>`;
+
+  // Render day cells (start from day 1, offset by some value for week alignment)
+  const offset = 0; // no offset — calendar is self-contained
+  let cellsHtml='';
+  const totalCells = Math.ceil((month.days + offset)/wcols)*wcols;
+
+  for(let cell=0;cell<totalCells;cell++){
+    const day=cell-offset+1;
+    if(day<1||day>month.days) { cellsHtml+=`<div class="cal-cell other-month"></div>`; continue; }
+    const events = sessionEvents[day]||[];
+    const isSpecial = month.special;
+    cellsHtml+=`<div class="cal-cell ${isSpecial?'special-day':''}" data-cal-day="${day}">
+      <div class="cal-day-num">${day}</div>
+      ${events.map(ev=>`<div class="cal-cell-event" style="background:rgba(123,184,212,.18);color:#7bb8d4;border-left:2px solid #7bb8d4"
+        title="${esc(ev.name)}">${esc(ev.name.slice(0,16))}${ev.name.length>16?'…':''}</div>`).join('')}
+    </div>`;
+  }
+
+  main.innerHTML = headerHtml + `<div class="cal-grid" style="grid-template-columns:repeat(${wcols},1fr)">${cellsHtml}</div>`;
+
+  // Click day → show detail in sidebar
+  main.querySelectorAll('[data-cal-day]').forEach(cell=>{
+    cell.addEventListener('click',()=>{ renderCalDaySidebar(parseInt(cell.dataset.calDay), sessionEvents[parseInt(cell.dataset.calDay)]||[]); });
+  });
+
+  renderCalSidebar();
+}
+
+function renderCalSidebar() {
+  const sb = document.getElementById('calSidebar');
+  const month=getCalMonth();
+  const saved=loadCalData();
+  const curDay  = saved?.currentDay||1;
+  const curMIdx = saved?.currentMonthIdx||0;
+  const curYear = saved?.currentYear||calConfig.startYear;
+  const isCurMonth= calViewMonthIdx===curMIdx&&calViewYear===curYear;
+
+  sb.innerHTML=`
+    <div class="cal-current-date-box">
+      <div class="cal-current-date-label">Current In-World Date</div>
+      <div class="cal-current-date-val">${savedDateStr()}</div>
+    </div>
+    <div class="cal-config-section">Advance Date</div>
+    <div style="display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:.75rem">
+      <button class="cal-nav-btn" id="calAdv1">+1 Day</button>
+      <button class="cal-nav-btn" id="calAdv7">+1 Week</button>
+      <button class="cal-nav-btn" id="calAdv30">+1 Month</button>
+    </div>
+    <div class="cal-config-section">This Month</div>
+    <div style="font-size:13.5px;color:var(--text-dim);margin-bottom:.5rem"><strong style="color:var(--text)">${esc(month.name)}</strong>${month.special?' — Special/Festival Day':''}<br>${month.days} day${month.days!==1?'s':''}</div>
+    <div class="cal-config-section">Months</div>
+    <div style="display:flex;flex-direction:column;gap:2px;max-height:200px;overflow-y:auto">
+      ${calConfig.months.map((m,i)=>`<button class="cal-nav-btn" style="${i===calViewMonthIdx&&calViewYear===curYear?'border-color:var(--gold-dim);color:var(--gold)':''}" data-jump-month="${i}">${esc(m.name)} ${m.special?'✦':''}</button>`).join('')}
+    </div>`;
+
+  const advDate=(days)=>{
+    const d=loadCalData()||{currentDay:1,currentMonthIdx:0,currentYear:calConfig.startYear};
+    let day=parseInt(d.currentDay||1)+days, mIdx=parseInt(d.currentMonthIdx||0), year=parseInt(d.currentYear||calConfig.startYear);
+    while(day>calConfig.months[mIdx].days){ day-=calConfig.months[mIdx].days; mIdx++; if(mIdx>=calConfig.months.length){mIdx=0;year++;} }
+    while(day<1){ mIdx--; if(mIdx<0){mIdx=calConfig.months.length-1;year--;} day+=calConfig.months[mIdx].days; }
+    const nd={preset:calPreset,config:calConfig,currentDay:day,currentMonthIdx:mIdx,currentYear:year};
+    saveCalData(nd); calViewYear=year; calViewMonthIdx=mIdx; renderCalendar();
+  };
+
+  sb.querySelector('#calAdv1')?.addEventListener('click',()=>advDate(1));
+  sb.querySelector('#calAdv7')?.addEventListener('click',()=>advDate(calConfig.weekDays.length||7));
+  sb.querySelector('#calAdv30')?.addEventListener('click',()=>advDate(calConfig.months[calViewMonthIdx].days));
+  sb.querySelectorAll('[data-jump-month]').forEach(btn=>{
+    btn.addEventListener('click',()=>{ calViewMonthIdx=parseInt(btn.dataset.jumpMonth); renderCalendar(); });
+  });
+}
+
+function renderCalDaySidebar(day, events) {
+  const sb = document.getElementById('calSidebar');
+  const month=getCalMonth();
+  const dateStr=`Day ${day}, ${month.name}, Year ${calViewYear} ${calConfig?.era||''}`;
+  sb.innerHTML=`
+    <div class="cal-current-date-box" style="cursor:pointer" id="setTodayBtn">
+      <div class="cal-current-date-label">Selected</div>
+      <div class="cal-current-date-val">${esc(dateStr)}</div>
+      <div style="font-size:10.5px;color:var(--text-faint);margin-top:.25rem">Click to set as today</div>
+    </div>
+    ${events.length?`<div class="cal-config-section" style="margin-top:.75rem">Sessions This Day</div>`+events.map(ev=>`
+      <div class="merge-entry-row" data-cal-entry="${esc(ev.id)}" style="cursor:pointer">
+        <span style="color:#7bb8d4">📖</span>
+        <div style="flex:1;min-width:0"><div style="font-family:'Cinzel',serif;font-size:11px;font-weight:600;color:var(--text)">${esc(ev.name)}</div></div>
+      </div>`).join(''):''}
+    <div class="cal-config-section" style="margin-top:.75rem">Back</div>
+    <button class="cal-nav-btn" id="calBackToMonth" style="width:100%">← Month View</button>`;
+
+  sb.querySelector('#setTodayBtn')?.addEventListener('click',()=>{
+    const nd=loadCalData()||{}; nd.currentDay=day; nd.currentMonthIdx=calViewMonthIdx; nd.currentYear=calViewYear; saveCalData(nd); renderCalSidebar();
+  });
+  sb.querySelectorAll('[data-cal-entry]').forEach(row=>{ row.addEventListener('click',()=>{ closeCalendar(); setTimeout(()=>openViewModal(row.dataset.calEntry),80); }); });
+  sb.querySelector('#calBackToMonth')?.addEventListener('click',renderCalSidebar);
+}
+
+function savedDateStr() {
+  const d=loadCalData();
+  if(!d||!calConfig) return 'Not set';
+  const m=calConfig.months[d.currentMonthIdx||0];
+  return `Day ${d.currentDay||1}, ${m?.name||'?'}, Year ${d.currentYear||calConfig.startYear} ${calConfig.era||''}`;
+}
+
+function renderCalConfig() {
+  const main=document.getElementById('calMain');
+  main.innerHTML=`
+    <div style="max-width:640px;margin:0 auto">
+      <div class="dash-section-title" style="margin-bottom:1rem">Calendar Presets</div>
+      <div style="display:flex;flex-direction:column;gap:.4rem;margin-bottom:1.5rem">
+        ${Object.entries(CAL_PRESETS).map(([k,p])=>`
+          <button class="cal-preset-btn ${calPreset===k?'active':''}" data-preset="${k}">
+            <strong>${esc(p.name)}</strong>
+            <span style="font-size:12px;color:var(--text-faint)"> — ${p.months.length} months, ${p.weekDays.length}-day weeks, starts ${p.era} ${p.startYear}</span>
+          </button>`).join('')}
+      </div>
+      <div class="dash-section-title">Current Calendar: ${esc(calConfig?.name||'')}</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-bottom:1rem">
+        ${(calConfig?.months||[]).map((m,i)=>`<div class="cal-current-date-box" style="text-align:left">
+          <div class="cal-current-date-label">${i+1}. ${esc(m.name)} ${m.special?'✦':''}</div>
+          <div style="font-size:13px;color:var(--text)">${m.days} day${m.days!==1?'s':''}</div>
+        </div>`).join('')}
+      </div>
+      <button class="btn btn-ghost" id="calConfigBack">← Back to Calendar</button>
+    </div>`;
+
+  main.querySelectorAll('[data-preset]').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      calPreset=btn.dataset.preset;
+      calConfig=JSON.parse(JSON.stringify(CAL_PRESETS[calPreset]));
+      calViewYear=calConfig.startYear; calViewMonthIdx=0;
+      calSave(); calShowConfig=false; renderCalendar();
+    });
+  });
+  main.querySelector('#calConfigBack')?.addEventListener('click',()=>{ calShowConfig=false; renderCalendar(); });
+  document.getElementById('calSidebar').innerHTML='';
+}
+
+function initCalendar() {
+  document.getElementById('calClose').addEventListener('click', closeCalendar);
+  document.getElementById('calPrevMonth').addEventListener('click', ()=>{
+    calViewMonthIdx--; if(calViewMonthIdx<0){calViewMonthIdx=(calConfig?.months?.length||12)-1;calViewYear--;} renderCalendar();
+  });
+  document.getElementById('calNextMonth').addEventListener('click', ()=>{
+    calViewMonthIdx++; if(calViewMonthIdx>=(calConfig?.months?.length||12)){calViewMonthIdx=0;calViewYear++;} renderCalendar();
+  });
+  document.getElementById('calTodayBtn').addEventListener('click', ()=>{
+    const d=loadCalData(); if(d){calViewYear=d.currentYear;calViewMonthIdx=d.currentMonthIdx;} renderCalendar();
+  });
+  document.getElementById('calConfigBtn').addEventListener('click', ()=>{ calShowConfig=!calShowConfig; renderCalendar(); });
+  document.getElementById('calendarBackdrop').addEventListener('click', e=>{ if(e.target===document.getElementById('calendarBackdrop')) closeCalendar(); });
+}
+
+/* ════════════════════════════════════════
    INIT
 ════════════════════════════════════════ */
 loadTheme();
@@ -10247,6 +12622,10 @@ initLinksPicker();
 initImageUpload();
 initDiceRoller();
 initPinboard();
+initGenerators();
+initBuiltinTemplates();
+initCombat();
+initCalendar();
 </script>
 </body>
 </html>
